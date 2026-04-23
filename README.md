@@ -38,4 +38,3 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 =======
 # LifeOS
 A vibecoded LifeOS used by Atharva Bakale to manage his life.
->>>>>>> 51770fe900fbfdd222dbd5a898f9bc3cf362362c
