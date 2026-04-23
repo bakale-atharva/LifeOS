@@ -26,10 +26,20 @@ model Profile {
 model Quest {
   id          String   @id @default(cuid())
   title       String
-  description String?
-  type        String   @default("SIDE") // SIDE or MAIN (Boss)
+  description String?  // The "Lore" / Why
+  type        String   @default("SIDE") // SIDE or BOSS
   status      String   @default("ACTIVE") // ACTIVE, COMPLETED, FAILED
-  difficulty  Int      @default(1) // 1-5, determines XP/Gold reward
+  difficulty  Int      @default(1) // 1-5
+  
+  // GPS Framework Fields
+  antiGoals   String?  // [G] Curses/Boundaries
+  milestones  Json?    // [P] Plan: Array of { title, completed }
+  preMortem   String?  // [P] Anticipated failures and solutions
+  dailyAction String?  // [S] The recurring attack
+  
+  totalHp     Int      @default(100)
+  currentHp   Int      @default(100)
+  
   deadline    DateTime?
   createdAt   DateTime @default(now())
   completedAt DateTime?
