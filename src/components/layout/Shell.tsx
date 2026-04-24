@@ -42,7 +42,7 @@ export default function RootLayout({
     { icon: User, href: "/profile", label: "Profile" },
     { icon: Calendar, href: "#", label: "Calendar" },
     { icon: FolderRoot, href: "#", label: "Projects" },
-    { icon: Settings, href: "#", label: "Settings" },
+    { icon: Settings, href: "/profile", label: "Settings" },
   ];
 
   return (

@@ -14,8 +14,20 @@ import {
   ShieldCheck, 
   Trophy, 
   Save,
-  Loader2
+  Loader2,
+  Trash2,
+  AlertTriangle
 } from "lucide-react";
+import { 
+  doc, 
+  onSnapshot, 
+  setDoc, 
+  serverTimestamp,
+  collection,
+  getDocs,
+  deleteDoc,
+  writeBatch
+} from "firebase/firestore";
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState({
@@ -26,6 +38,7 @@ export default function ProfilePage() {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [purging, setPurging] = useState(false);
 
   useEffect(() => {
     // For now, we use a single hardcoded 'default' profile ID
@@ -50,6 +63,30 @@ export default function ProfilePage() {
       console.error(error);
     }
     setSaving(false);
+  };
+
+  const purgeData = async () => {
+    if (!confirm("CRITICAL WARNING: This will permanently delete ALL goals, projects, tasks, sleep logs, and test data. This action cannot be undone. Proceed with system purge?")) return;
+    
+    setPurging(true);
+    try {
+      const collectionsToPurge = ["goals", "projects", "tasks", "sleep_logs", "dummy_data"];
+      
+      for (const colName of collectionsToPurge) {
+        const querySnapshot = await getDocs(collection(db, colName));
+        const batch = writeBatch(db);
+        querySnapshot.forEach((doc) => {
+          batch.delete(doc.ref);
+        });
+        await batch.commit();
+      }
+      
+      alert("System Purge Complete. All user data has been eliminated.");
+    } catch (error) {
+      console.error("Purge Failed:", error);
+      alert("Purge failed. Check console for details.");
+    }
+    setPurging(false);
   };
 
   if (loading) return (
@@ -95,52 +132,73 @@ export default function ProfilePage() {
         </div>
 
         {/* Edit Form */}
-        <div className="md:col-span-8 nexus-panel p-8 space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="md:col-span-8 nexus-panel p-8 space-y-8">
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="nexus-subtext">Display Name</label>
+                <input 
+                  value={profile.name}
+                  onChange={(e) => setProfile({...profile, name: e.target.value})}
+                  className="nexus-input w-full" 
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="nexus-subtext">Core Title</label>
+                <input 
+                  value={profile.title}
+                  onChange={(e) => setProfile({...profile, title: e.target.value})}
+                  className="nexus-input w-full" 
+                />
+              </div>
+            </div>
+
             <div className="space-y-2">
-              <label className="nexus-subtext">Display Name</label>
+              <label className="nexus-subtext">Avatar Seed (Dicebear)</label>
               <input 
-                value={profile.name}
-                onChange={(e) => setProfile({...profile, name: e.target.value})}
+                value={profile.avatarUrl.split('seed=')[1] || ""}
+                onChange={(e) => setProfile({...profile, avatarUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${e.target.value}`})}
                 className="nexus-input w-full" 
+                placeholder="Enter seed for avatar..."
               />
             </div>
+
             <div className="space-y-2">
-              <label className="nexus-subtext">Core Title</label>
-              <input 
-                value={profile.title}
-                onChange={(e) => setProfile({...profile, title: e.target.value})}
-                className="nexus-input w-full" 
+              <label className="nexus-subtext">Biography</label>
+              <textarea 
+                value={profile.bio}
+                onChange={(e) => setProfile({...profile, bio: e.target.value})}
+                className="nexus-input w-full h-32 resize-none" 
               />
             </div>
+
+            <button 
+              onClick={saveProfile}
+              disabled={saving}
+              className="nexus-btn w-full flex items-center justify-center space-x-2"
+            >
+              {saving ? <Loader2 className="animate-spin" size={20} /> : <><Save size={20} /> <span>Synchronize Profile</span></>}
+            </button>
           </div>
 
-          <div className="space-y-2">
-            <label className="nexus-subtext">Avatar Seed (Dicebear)</label>
-            <input 
-              value={profile.avatarUrl.split('seed=')[1] || ""}
-              onChange={(e) => setProfile({...profile, avatarUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${e.target.value}`})}
-              className="nexus-input w-full" 
-              placeholder="Enter seed for avatar..."
-            />
+          {/* Danger Zone */}
+          <div className="pt-8 border-t border-red-500/20 space-y-4">
+            <div className="flex items-center space-x-2 text-red-500 font-bold uppercase text-xs tracking-[0.2em]">
+              <AlertTriangle size={16} /> <span>Danger Zone</span>
+            </div>
+            <div className="p-6 bg-red-500/5 border border-red-500/20 rounded-2xl space-y-4">
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Executing a system purge will remove all personalized data streams. This operation is irreversible and will reset your progress tracking to zero.
+              </p>
+              <button 
+                onClick={purgeData}
+                disabled={purging}
+                className="w-full py-3 rounded-xl border border-red-500/50 text-red-500 text-xs font-bold uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
+              >
+                {purging ? <Loader2 className="animate-spin" size={16} /> : <><Trash2 size={16} /> <span>Purge System Data</span></>}
+              </button>
+            </div>
           </div>
-
-          <div className="space-y-2">
-            <label className="nexus-subtext">Biography</label>
-            <textarea 
-               value={profile.bio}
-               onChange={(e) => setProfile({...profile, bio: e.target.value})}
-               className="nexus-input w-full h-32 resize-none" 
-            />
-          </div>
-
-          <button 
-            onClick={saveProfile}
-            disabled={saving}
-            className="nexus-btn w-full flex items-center justify-center space-x-2"
-          >
-            {saving ? <Loader2 className="animate-spin" size={20} /> : <><Save size={20} /> <span>Synchronize Profile</span></>}
-          </button>
         </div>
 
       </div>
