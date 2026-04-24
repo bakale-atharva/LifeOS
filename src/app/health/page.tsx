@@ -23,7 +23,7 @@ import {
   Moon, 
   Plus, 
   Clock, 
-  Zzz,
+  Bed,
   Info,
   History
 } from "lucide-react";
@@ -159,7 +159,7 @@ export default function HealthPage() {
                         onClick={addSleepLog}
                         className="nexus-btn w-full mt-4 flex items-center justify-center space-x-2"
                     >
-                        <Zzz size={18} /> <span>Save Log</span>
+                        <Bed size={18} /><span>Save Log</span>
                     </button>
                 </div>
             </div>
@@ -227,7 +227,7 @@ export default function HealthPage() {
                         </div>
                         <div className="nexus-panel p-6 flex items-center justify-between">
                             <div className="flex items-center space-x-3">
-                                <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400"><Zzz size={18}/></div>
+                                <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400"><Bed size={18}/></div>
                                 <div>
                                     <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Deep Sleep</p>
                                     <p className="text-xl font-bold">{formatMinutes(currentLog.deepSleep)}</p>
