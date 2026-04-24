@@ -6,7 +6,10 @@ import {
   doc, 
   onSnapshot, 
   setDoc, 
-  serverTimestamp 
+  serverTimestamp,
+  collection,
+  getDocs,
+  writeBatch
 } from "firebase/firestore";
 import { 
   User, 
@@ -18,16 +21,6 @@ import {
   Trash2,
   AlertTriangle
 } from "lucide-react";
-import { 
-  doc, 
-  onSnapshot, 
-  setDoc, 
-  serverTimestamp,
-  collection,
-  getDocs,
-  deleteDoc,
-  writeBatch
-} from "firebase/firestore";
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState({
