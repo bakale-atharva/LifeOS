@@ -27,6 +27,7 @@ import {
 export default function Home() {
   const [goals, setGoals] = useState<any[]>([]);
   const [tasks, setTasks] = useState<any[]>([]);
+  const [latestSleep, setLatestSleep] = useState<any>(null);
   const [profile, setProfile] = useState({
     name: "Julian Dubois",
     title: "Master Admin",
@@ -75,6 +76,22 @@ export default function Home() {
     );
     return onSnapshot(q, (snapshot) => {
       setTasks(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+    });
+  }, []);
+
+  // Fetch latest sleep log
+  useEffect(() => {
+    const q = query(
+      collection(db, "sleep_logs"),
+      orderBy("timestamp", "desc"),
+      limit(1),
+    );
+    return onSnapshot(q, (snapshot) => {
+      if (!snapshot.empty) {
+        setLatestSleep(snapshot.docs[0].data());
+      } else {
+        setLatestSleep(null);
+      }
     });
   }, []);
 
@@ -279,15 +296,27 @@ export default function Home() {
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="space-y-1">
               <div className="nexus-subtext">Steps</div>
-              <div className="text-2xl font-bold">10,230</div>
+              <div className="text-2xl font-bold">--</div>
             </div>
             <div className="space-y-1">
-              <div className="nexus-subtext">Sleep</div>
+              <div className="nexus-subtext">Sleep Score</div>
               <div className="text-2xl font-bold">
-                7.4 <span className="text-xs text-gray-500">h</span>
+                {latestSleep ? latestSleep.score : "--"}{" "}
+                <span className="text-xs text-teal-400 font-bold uppercase">PTS</span>
               </div>
             </div>
           </div>
+          {latestSleep && (
+            <div className="p-3 bg-white/5 rounded-xl border border-white/5">
+                <div className="flex justify-between items-center text-[10px] text-gray-500 uppercase tracking-widest mb-2">
+                    <span>Rest Quality</span>
+                    <span className="text-teal-400">{Math.round((latestSleep.deepSleep / (latestSleep.deepSleep + latestSleep.lightSleep)) * 100)}% Deep</span>
+                </div>
+                <div className="w-full bg-gray-800 h-1 rounded-full overflow-hidden">
+                    <div className="bg-teal-500 h-full" style={{ width: `${latestSleep.score}%` }} />
+                </div>
+            </div>
+          )}
         </section>
 
         {/* Database Sync Card (FUNCTIONAL) */}

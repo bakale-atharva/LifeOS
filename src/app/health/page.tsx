@@ -9,7 +9,9 @@ import {
   query, 
   orderBy, 
   limit, 
-  serverTimestamp 
+  serverTimestamp,
+  doc,
+  deleteDoc
 } from "firebase/firestore";
 import { 
   PieChart, 
@@ -25,7 +27,8 @@ import {
   Clock, 
   Bed,
   Info,
-  History
+  History,
+  Trash2
 } from "lucide-react";
 
 type SleepLog = {
@@ -49,6 +52,15 @@ export default function HealthPage() {
       setLogs(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as SleepLog)));
     });
   }, []);
+
+  const deleteLog = async (id: string) => {
+    if (!confirm("Delete this sleep log?")) return;
+    try {
+      await deleteDoc(doc(db, "sleep_logs", id));
+    } catch (error) {
+      console.error("Delete failed:", error);
+    }
+  };
 
   const calculateScore = (light: number, deep: number, awake: number) => {
     const totalMinutes = light + deep;
@@ -274,11 +286,12 @@ export default function HealthPage() {
                                 <th className="px-6 py-4">Duration</th>
                                 <th className="px-6 py-4">Deep %</th>
                                 <th className="px-6 py-4">Score</th>
+                                <th className="px-6 py-4">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
                             {logs.map(log => (
-                                <tr key={log.id} className="hover:bg-white/2 transition-colors">
+                                <tr key={log.id} className="hover:bg-white/2 transition-colors group">
                                     <td className="px-6 py-4 text-sm font-medium">
                                         {log.timestamp?.toDate().toLocaleDateString() || "Today"}
                                     </td>
@@ -297,6 +310,14 @@ export default function HealthPage() {
                                                 <div className="h-full bg-teal-500" style={{ width: `${log.score}%` }} />
                                             </div>
                                         </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <button 
+                                            onClick={() => deleteLog(log.id)}
+                                            className="text-gray-700 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
                                     </td>
                                 </tr>
                             ))}
