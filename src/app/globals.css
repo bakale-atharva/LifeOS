@@ -6,94 +6,128 @@
 }
 
 :root {
-  --background: #0d1117;
+  --background: #05070a;
   --foreground: #f0f6fc;
-  --nexus-teal: #2dd4bf;
-  --nexus-gold: #fbbf24;
-  --nexus-panel: rgba(22, 27, 34, 0.6);
-  --nexus-border: rgba(48, 54, 61, 0.4);
+  --ascend-gold: #c5a059;
+  --ascend-gold-bright: #e2c08d;
+  --ascend-blue: #3b82f6;
+  --ascend-panel: rgba(15, 20, 30, 0.8);
+  --ascend-border: rgba(255, 255, 255, 0.08);
+  --ascend-glow: rgba(197, 160, 89, 0.2);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
-  overflow: hidden;
-  height: 100vh;
+  overflow-x: hidden;
+  min-height: 100vh;
   width: 100vw;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.05), transparent 50%),
+    radial-gradient(circle at 100% 100%, rgba(197, 160, 89, 0.03), transparent 50%);
 }
 
-/* Nexus Glass Panels */
-.nexus-panel {
-  background: var(--nexus-panel);
-  backdrop-filter: blur(16px);
-  border: 1px solid var(--nexus-border);
-  border-radius: 1.25rem; /* 20px */
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-  overflow: hidden;
+/* Ascend Panels */
+.ascend-panel {
+  background: var(--ascend-panel);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--ascend-border);
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+}
+
+.ascend-panel:hover {
+  border-color: rgba(197, 160, 89, 0.2);
+}
+
+.ascend-card-header {
+  @apply text-[11px] font-bold tracking-[0.2em] text-gray-500 uppercase mb-4;
+}
+
+/* Circular Progress Bar */
+.circular-progress {
   position: relative;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: conic-gradient(var(--ascend-gold) calc(var(--progress) * 1%), #1a202c 0);
+  box-shadow: 0 0 20px var(--ascend-glow);
 }
 
-.nexus-panel::after {
+.circular-progress::before {
   content: "";
   position: absolute;
-  bottom: 0;
-  left: 10%;
-  right: 10%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--nexus-teal), transparent);
-  opacity: 0.5;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: var(--background);
 }
 
-.nexus-panel-gold::after {
-  background: linear-gradient(90deg, transparent, var(--nexus-gold), transparent);
+.circular-progress-inner {
+  position: relative;
+  text-align: center;
+  z-index: 1;
 }
 
-/* Custom Scrollbar for the widgets if needed */
+/* Navigation */
+.nav-item {
+  @apply flex flex-col items-center p-3 text-gray-500 transition-all duration-300 hover:text-white;
+}
+
+.nav-item.active {
+  @apply text-ascend-gold;
+}
+
+.nav-item-icon {
+  @apply mb-1 transition-transform duration-300 group-hover:scale-110;
+}
+
+/* Typography */
+.text-ascend {
+  font-family: var(--font-sans);
+  letter-spacing: 0.3em;
+  @apply uppercase font-bold;
+}
+
+.gold-glow {
+  text-shadow: 0 0 10px var(--ascend-glow);
+}
+
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--nexus-border);
+  background: var(--ascend-border);
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--nexus-teal);
+  background: var(--ascend-gold);
 }
 
-/* Sidebar Hover Styles */
-.nav-icon-btn {
-  @apply p-3 rounded-xl transition-all duration-300 text-gray-500 hover:text-white hover:bg-white/5;
+/* Progress Bars */
+.progress-bg {
+  @apply w-full h-1.5 bg-gray-800 rounded-full overflow-hidden;
 }
 
-.nav-icon-btn.active {
-  @apply text-teal-400 bg-teal-500/10 border-r-2 border-teal-400 rounded-none;
+.progress-fill {
+  @apply h-full bg-ascend-gold rounded-full transition-all duration-500;
+  box-shadow: 0 0 10px rgba(197, 160, 89, 0.4);
 }
 
-/* Typography Enhancements */
-.nexus-title {
-  @apply font-bold tracking-tight text-white;
+/* Sidebar Overlay */
+.sidebar-overlay {
+  @apply fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300;
 }
 
-.nexus-subtext {
-  @apply text-[11px] font-medium text-gray-500 uppercase tracking-widest;
-}
-
-.nexus-input {
-  background: rgba(13, 17, 23, 0.8);
-  border: 1px solid var(--nexus-border);
-  @apply rounded-xl px-4 py-3 text-sm text-white outline-none transition-all duration-300;
-}
-
-.nexus-input:focus {
-  border-color: var(--nexus-teal);
-  box-shadow: 0 0 10px rgba(45, 212, 191, 0.2);
-}
-
-.nexus-btn {
-  background: var(--nexus-teal);
-  @apply rounded-xl px-6 py-3 text-sm font-bold text-gray-900 transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(45,212,191,0.3)];
+.sidebar-content {
+  @apply fixed left-0 top-0 bottom-0 w-72 bg-[#0a0d14] border-r border-white/5 z-50 transform transition-transform duration-300 shadow-2xl;
 }

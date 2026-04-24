@@ -2,97 +2,137 @@
 
 import { 
   LayoutDashboard, 
-  Calendar, 
   CheckSquare, 
-  Settings,
+  TrendingUp,
+  Users,
   User,
-  Heart,
-  ChevronLeft,
   Menu,
+  X,
+  Calendar,
+  Settings,
+  FolderRoot,
   Zap,
-  FolderRoot
+  ChevronRight
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
-import { db } from "@/lib/firebase";
-import { doc, onSnapshot } from "firebase/firestore";
+import { useState } from "react";
 
-export default function RootLayout({
+export default function Shell({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [profile, setProfile] = useState({
-    avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Julian"
-  });
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  useEffect(() => {
-    return onSnapshot(doc(db, "profiles", "default"), (doc) => {
-      if (doc.exists()) setProfile(doc.data() as any);
-    });
-  }, []);
-
-  const navItems = [
+  const bottomNavItems = [
     { icon: LayoutDashboard, href: "/", label: "Dashboard" },
-    { icon: CheckSquare, href: "/goals", label: "Goals" },
-    { icon: Heart, href: "/health", label: "Health" },
+    { icon: CheckSquare, href: "/goals", label: "Quests" },
+    { icon: TrendingUp, href: "/health", label: "Growth (Stats)" },
+    { icon: Users, href: "#", label: "Social" },
     { icon: User, href: "/profile", label: "Profile" },
+  ];
+
+  const sidebarItems = [
     { icon: Calendar, href: "#", label: "Calendar" },
     { icon: FolderRoot, href: "#", label: "Projects" },
     { icon: Settings, href: "/profile", label: "Settings" },
   ];
 
   return (
-    <div className="h-screen w-screen flex bg-[#0d1117] text-white font-sans overflow-hidden">
-      {/* Sidebar Navigation */}
-      <aside className={`${isExpanded ? 'w-64' : 'w-20'} transition-all duration-300 flex flex-col items-center py-8 border-r border-white/5 space-y-8 z-20 bg-[#0d1117]`}>
-        <div className="w-full px-4 flex items-center justify-between">
-          <div className={`w-10 h-10 bg-teal-500 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(45,212,191,0.4)] flex-shrink-0 ${!isExpanded && 'mx-auto'}`}>
-            <Zap className="text-gray-900" size={24} />
-          </div>
-          {isExpanded && <span className="font-bold text-xl tracking-tighter text-teal-400 ml-3 flex-1">LifeOS</span>}
-          <button 
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="p-2 hover:bg-white/5 rounded-lg text-gray-500 hover:text-white transition-colors"
-          >
-            {isExpanded ? <ChevronLeft size={20} /> : <Menu size={20} />}
-          </button>
-        </div>
-        
-        <nav className="flex-1 flex flex-col space-y-2 w-full px-4">
-          {navItems.map((item) => (
-            <Link 
-              key={item.label}
-              href={item.href} 
-              className={`flex items-center p-3 rounded-xl transition-all duration-300 group ${pathname === item.href ? 'text-teal-400 bg-teal-500/10 border-l-2 border-teal-400' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}
-            >
-              <item.icon size={22} className="flex-shrink-0" />
-              {isExpanded && <span className="ml-4 font-medium whitespace-nowrap">{item.label}</span>}
-            </Link>
-          ))}
-        </nav>
+    <div className="min-h-screen w-screen flex flex-col bg-[#05070a] text-white font-sans overflow-x-hidden">
+      {/* Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
 
-        <div className="w-full px-4 mt-auto">
-          <Link href="/profile" className={`flex items-center p-2 rounded-xl hover:bg-white/5 transition-all ${!isExpanded && 'justify-center'}`}>
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-gray-700 to-gray-500 overflow-hidden flex-shrink-0">
-               <img src={profile.avatarUrl} alt="Profile" />
-            </div>
-            {isExpanded && (
-              <div className="ml-3 overflow-hidden">
-                <p className="text-sm font-bold truncate">User Profile</p>
-                <p className="text-[10px] text-gray-500 uppercase">View Details</p>
+      {/* Sidebar Content */}
+      <aside className={`fixed left-0 top-0 bottom-0 w-72 bg-[#0a0d14] border-r border-white/5 z-50 transform transition-transform duration-300 shadow-2xl ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="p-6 flex flex-col h-full">
+          <div className="flex items-center justify-between mb-12">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-ascend-gold rounded-lg flex items-center justify-center">
+                <Zap size={18} className="text-[#05070a]" fill="currentColor" />
               </div>
-            )}
-          </Link>
+              <span className="text-ascend text-sm tracking-widest text-ascend-gold">LifeOS</span>
+            </div>
+            <button onClick={() => setIsSidebarOpen(false)} className="text-gray-500 hover:text-white">
+              <X size={20} />
+            </button>
+          </div>
+
+          <nav className="flex-1 space-y-2">
+            <div className="text-[10px] font-bold text-gray-600 tracking-[0.2em] uppercase mb-4 px-2">General</div>
+            {sidebarItems.map((item) => (
+              <Link 
+                key={item.label}
+                href={item.href}
+                onClick={() => setIsSidebarOpen(false)}
+                className="flex items-center justify-between p-3 rounded-xl transition-all duration-300 text-gray-400 hover:text-white hover:bg-white/5 group"
+              >
+                <div className="flex items-center space-x-4">
+                  <item.icon size={20} className="group-hover:text-ascend-gold transition-colors" />
+                  <span className="text-sm font-medium">{item.label}</span>
+                </div>
+                <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+              </Link>
+            ))}
+          </nav>
+
+          <div className="mt-auto pt-6 border-t border-white/5">
+             <div className="flex items-center space-x-3 p-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-gray-800 to-gray-600 overflow-hidden border border-white/10">
+                  <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Julian" alt="Profile" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold">Julian Dubois</p>
+                  <p className="text-[10px] text-gray-500 uppercase tracking-wider">Level 7 Pathfinder</p>
+                </div>
+             </div>
+          </div>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {children}
+      <div className="flex-1 flex flex-col relative pb-24">
+        {/* Header */}
+        <header className="pt-12 pb-8 flex flex-col items-center justify-center space-y-1 relative">
+          <button 
+            onClick={() => setIsSidebarOpen(true)}
+            className="absolute left-8 top-12 p-2 hover:bg-white/5 rounded-lg text-gray-500 hover:text-white transition-colors"
+          >
+            <Menu size={24} />
+          </button>
+          
+          <h1 className="text-4xl md:text-5xl text-ascend text-ascend-gold gold-glow">ASCEND</h1>
+          <p className="text-[10px] md:text-xs tracking-[0.5em] text-gray-500 font-medium uppercase">Navigate your existence</p>
+        </header>
+
+        {/* Dynamic Content */}
+        <div className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8">
+          {children}
+        </div>
+
+        {/* Bottom Navigation */}
+        <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center bg-black/40 backdrop-blur-xl border border-white/10 px-4 py-2 rounded-2xl shadow-2xl z-30">
+          {bottomNavItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link 
+                key={item.label}
+                href={item.href}
+                className={`flex items-center space-x-3 px-6 py-3 rounded-xl transition-all duration-300 group ${isActive ? 'text-ascend-gold bg-ascend-gold/5' : 'text-gray-500 hover:text-gray-300'}`}
+              >
+                <item.icon size={20} className={`${isActive ? 'text-ascend-gold' : 'text-gray-500 group-hover:text-gray-300'} transition-colors`} />
+                <span className={`text-xs font-bold tracking-wider hidden md:block ${isActive ? 'text-ascend-gold' : 'text-gray-500 group-hover:text-gray-300'}`}>{item.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
       </div>
     </div>
   );
