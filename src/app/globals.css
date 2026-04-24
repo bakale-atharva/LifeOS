@@ -6,68 +6,94 @@
 }
 
 :root {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-  --neon-blue: #00f2ff;
-  --neon-pink: #ff00ff;
-  --neon-yellow: #fff200;
-  --glass: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(255, 255, 255, 0.1);
+  --background: #0d1117;
+  --foreground: #f0f6fc;
+  --nexus-teal: #2dd4bf;
+  --nexus-gold: #fbbf24;
+  --nexus-panel: rgba(22, 27, 34, 0.6);
+  --nexus-border: rgba(48, 54, 61, 0.4);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-  overflow-x: hidden;
+  font-family: var(--font-sans);
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
 }
 
-/* Marvel Rivals inspired glows and angles */
-.gamified-card {
-  background: var(--glass);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--glass-border);
-  clip-path: polygon(10% 0, 100% 0, 100% 85%, 90% 100%, 0 100%, 0 15%);
-  transition: all 0.3s ease;
+/* Nexus Glass Panels */
+.nexus-panel {
+  background: var(--nexus-panel);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--nexus-border);
+  border-radius: 1.25rem; /* 20px */
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  overflow: hidden;
+  position: relative;
 }
 
-.gamified-card:hover {
-  border-color: var(--neon-blue);
-  box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
+.nexus-panel::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--nexus-teal), transparent);
+  opacity: 0.5;
 }
 
-.neon-text {
-  text-shadow: 0 0 10px var(--neon-blue);
+.nexus-panel-gold::after {
+  background: linear-gradient(90deg, transparent, var(--nexus-gold), transparent);
 }
 
-.neon-button {
+/* Custom Scrollbar for the widgets if needed */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
   background: transparent;
-  border: 2px solid var(--neon-blue);
-  color: var(--neon-blue);
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  font-weight: bold;
-  clip-path: polygon(0 0, 90% 0, 100% 30%, 100% 100%, 10% 100%, 0 70%);
-  transition: all 0.2s ease;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--nexus-border);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--nexus-teal);
 }
 
-.neon-button:hover {
-  background: var(--neon-blue);
-  color: black;
-  box-shadow: 0 0 30px var(--neon-blue);
+/* Sidebar Hover Styles */
+.nav-icon-btn {
+  @apply p-3 rounded-xl transition-all duration-300 text-gray-500 hover:text-white hover:bg-white/5;
 }
 
-.gamified-input {
-  background: rgba(255, 255, 255, 0.05);
-  border: none;
-  border-bottom: 2px solid var(--glass-border);
-  color: white;
-  padding: 0.75rem 1rem;
-  outline: none;
-  transition: all 0.3s ease;
+.nav-icon-btn.active {
+  @apply text-teal-400 bg-teal-500/10 border-r-2 border-teal-400 rounded-none;
 }
 
-.gamified-input:focus {
-  border-bottom-color: var(--neon-pink);
-  background: rgba(255, 0, 255, 0.05);
+/* Typography Enhancements */
+.nexus-title {
+  @apply font-bold tracking-tight text-white;
+}
+
+.nexus-subtext {
+  @apply text-[11px] font-medium text-gray-500 uppercase tracking-widest;
+}
+
+.nexus-input {
+  background: rgba(13, 17, 23, 0.8);
+  border: 1px solid var(--nexus-border);
+  @apply rounded-xl px-4 py-3 text-sm text-white outline-none transition-all duration-300;
+}
+
+.nexus-input:focus {
+  border-color: var(--nexus-teal);
+  box-shadow: 0 0 10px rgba(45, 212, 191, 0.2);
+}
+
+.nexus-btn {
+  background: var(--nexus-teal);
+  @apply rounded-xl px-6 py-3 text-sm font-bold text-gray-900 transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(45,212,191,0.3)];
 }

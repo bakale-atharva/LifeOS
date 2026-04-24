@@ -1,0 +1,149 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { db } from "@/lib/firebase";
+import { 
+  doc, 
+  onSnapshot, 
+  setDoc, 
+  serverTimestamp 
+} from "firebase/firestore";
+import { 
+  User, 
+  Camera, 
+  ShieldCheck, 
+  Trophy, 
+  Save,
+  Loader2
+} from "lucide-react";
+
+export default function ProfilePage() {
+  const [profile, setProfile] = useState({
+    name: "Julian Dubois",
+    title: "Master Admin",
+    avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Julian",
+    bio: "Optimizing life via the Nexus GPS framework."
+  });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    // For now, we use a single hardcoded 'default' profile ID
+    const unsub = onSnapshot(doc(db, "profiles", "default"), (doc) => {
+      if (doc.exists()) {
+        setProfile(doc.data() as any);
+      }
+      setLoading(false);
+    });
+    return unsub;
+  }, []);
+
+  const saveProfile = async () => {
+    setSaving(true);
+    try {
+      await setDoc(doc(db, "profiles", "default"), {
+        ...profile,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+      alert("Profile Optimized Successfully.");
+    } catch (error) {
+      console.error(error);
+    }
+    setSaving(false);
+  };
+
+  if (loading) return (
+    <div className="flex-1 flex items-center justify-center text-teal-400">
+      <Loader2 className="animate-spin mr-2" /> Initializing Core...
+    </div>
+  );
+
+  return (
+    <main className="flex-1 flex flex-col p-8 space-y-8 overflow-y-auto">
+      <header>
+        <h1 className="text-3xl font-bold tracking-tight">IDENTITY_MANAGEMENT</h1>
+      </header>
+
+      <div className="max-w-4xl grid grid-cols-1 md:grid-cols-12 gap-8">
+        
+        {/* Profile Card */}
+        <div className="md:col-span-4 nexus-panel p-8 flex flex-col items-center space-y-6">
+          <div className="relative group">
+            <div className="w-32 h-32 rounded-full border-4 border-teal-500/30 overflow-hidden shadow-[0_0_30px_rgba(45,212,191,0.2)]">
+              <img src={profile.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+            </div>
+            <button className="absolute bottom-0 right-0 p-2 bg-teal-500 rounded-lg text-gray-900 hover:scale-110 transition-transform">
+              <Camera size={16} />
+            </button>
+          </div>
+          
+          <div className="text-center">
+            <h2 className="text-xl font-bold">{profile.name}</h2>
+            <div className="text-xs text-teal-400 font-bold uppercase tracking-widest mt-1">{profile.title}</div>
+          </div>
+
+          <div className="w-full grid grid-cols-2 gap-4">
+            <div className="p-4 bg-white/5 rounded-2xl text-center">
+              <div className="text-[10px] text-gray-500 uppercase mb-1">Status</div>
+              <ShieldCheck className="mx-auto text-teal-400" size={20} />
+            </div>
+            <div className="p-4 bg-white/5 rounded-2xl text-center">
+              <div className="text-[10px] text-gray-500 uppercase mb-1">Rank</div>
+              <Trophy className="mx-auto text-amber-500" size={20} />
+            </div>
+          </div>
+        </div>
+
+        {/* Edit Form */}
+        <div className="md:col-span-8 nexus-panel p-8 space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="nexus-subtext">Display Name</label>
+              <input 
+                value={profile.name}
+                onChange={(e) => setProfile({...profile, name: e.target.value})}
+                className="nexus-input w-full" 
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="nexus-subtext">Core Title</label>
+              <input 
+                value={profile.title}
+                onChange={(e) => setProfile({...profile, title: e.target.value})}
+                className="nexus-input w-full" 
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="nexus-subtext">Avatar Seed (Dicebear)</label>
+            <input 
+              value={profile.avatarUrl.split('seed=')[1] || ""}
+              onChange={(e) => setProfile({...profile, avatarUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${e.target.value}`})}
+              className="nexus-input w-full" 
+              placeholder="Enter seed for avatar..."
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="nexus-subtext">Biography</label>
+            <textarea 
+               value={profile.bio}
+               onChange={(e) => setProfile({...profile, bio: e.target.value})}
+               className="nexus-input w-full h-32 resize-none" 
+            />
+          </div>
+
+          <button 
+            onClick={saveProfile}
+            disabled={saving}
+            className="nexus-btn w-full flex items-center justify-center space-x-2"
+          >
+            {saving ? <Loader2 className="animate-spin" size={20} /> : <><Save size={20} /> <span>Synchronize Profile</span></>}
+          </button>
+        </div>
+
+      </div>
+    </main>
+  );
+}
