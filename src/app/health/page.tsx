@@ -40,26 +40,24 @@ export default function HealthOSPage() {
             <span className="text-xs font-bold uppercase text-zinc-500">Sleep Tracking</span>
           </div>
           <div className="text-center mb-8">
-            <div className="text-5xl font-black text-zinc-100 mb-2">{sleep}h</div>
-            <div className="text-sm text-zinc-400">Rest duration last night</div>
+            <input 
+              type="number" 
+              step="0.1"
+              value={sleep}
+              onChange={(e) => setSleep(parseFloat(e.target.value) || 0)}
+              className="text-5xl font-black text-zinc-100 mb-2 bg-transparent border-b-2 border-zinc-800 w-32 text-center focus:outline-none focus:border-accent-purple transition-colors"
+            />
+            <div className="text-sm text-zinc-400 mt-2">Hours rested last night</div>
           </div>
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={() => setSleep(Math.max(0, sleep - 0.5))}
-              className="flex-1 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-100"
-            >
-              -0.5h
-            </button>
-            <button 
-              onClick={() => {
-                setSleep(sleep + 0.5);
-                addXP(5);
-              }}
-              className="flex-1 py-2 rounded-xl bg-accent-purple text-white shadow-lg shadow-accent-purple/20"
-            >
-              +0.5h
-            </button>
-          </div>
+          <button 
+            onClick={() => {
+              addXP(Math.round(sleep * 10));
+              alert(`Logged ${sleep}h of sleep! +${Math.round(sleep * 10)} XP`);
+            }}
+            className="w-full py-3 rounded-xl bg-accent-purple text-white font-bold shadow-lg shadow-accent-purple/20 transition-all hover:scale-[1.02] active:scale-95"
+          >
+            Log Sleep Entry
+          </button>
         </div>
 
         {/* Hydration Tracker */}
