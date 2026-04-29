@@ -22,9 +22,12 @@
    - **Location:** `/time`
 
 4. **System 3: Health OS** (Phase 2)
-   - **Sleep:** Duration tracking (+5 XP per half hour logged).
+   - **Sleep:** Direct numerical input (+10 XP per hour).
    - **Hydration:** Visual water glass counter (+10 XP per glass).
-   - **Movement:** Activity duration tracking with progress bar (+50 XP per 15m).
+   - **Movement:** Activity tracking (+50 XP per 15m).
+   - **Weight Tracking:** Direct numerical input synced to Firestore (+100 XP per update).
+   - **Weekly Performance Vitals:** Real-time data-driven bar chart showing health scores for the last 7 days.
+   - **Custom Notifications:** Theme-integrated "Toast" system (replaces alert boxes).
    - **Location:** `/health`
 
 5. **Dashboard**
