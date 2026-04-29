@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useStore } from '@/store/useStore';
-import { Target, Plus, CheckCircle2, Circle, Trash2 } from 'lucide-react';
+import { Target, Plus, CheckCircle2, Circle, Trash2, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { addDocument, getDocuments, updateDocument, deleteDocument } from '@/lib/firestoreUtils';
@@ -22,17 +22,30 @@ interface Goal {
 
 export default function GPSPage() {
   const [goals, setGoals] = useState<Goal[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
   const [newGoal, setNewGoal] = useState({ title: '', purpose: '', systems: [''] });
   const addXP = useStore(state => state.addXP);
 
-  // In a real app, this would fetch from Firestore. 
-  // For now, I'll simulate with local state but use the firestoreUtils structure.
+  useEffect(() => {
+    fetchGoals();
+  }, []);
+
+  const fetchGoals = async () => {
+    try {
+      const data = await getDocuments('goals');
+      setGoals(data as Goal[]);
+    } catch (error) {
+      console.error("Error fetching goals:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   
   const handleAddGoal = async () => {
     if (!newGoal.title || !newGoal.purpose) return;
     
-    const goalData: Goal = {
+    const goalData: Omit<Goal, 'id'> = {
       title: newGoal.title,
       purpose: newGoal.purpose,
       systems: newGoal.systems
@@ -40,29 +53,47 @@ export default function GPSPage() {
         .map(s => ({ id: Math.random().toString(36).substr(2, 9), label: s, completed: false }))
     };
 
-    // Simulate Firestore add
-    setGoals([...goals, { ...goalData, id: Math.random().toString() }]);
-    setNewGoal({ title: '', purpose: '', systems: [''] });
-    setIsAdding(false);
-    addXP(100); // Award XP for setting a goal
+    try {
+      await addDocument('goals', goalData);
+      await fetchGoals();
+      setNewGoal({ title: '', purpose: '', systems: [''] });
+      setIsAdding(false);
+      addXP(100);
+    } catch (error) {
+      console.error("Error adding goal:", error);
+    }
   };
 
-  const toggleSystem = (goalId: string, systemId: string) => {
-    setGoals(goals.map(goal => {
-      if (goal.id === goalId) {
-        return {
-          ...goal,
-          systems: goal.systems.map(s => {
-            if (s.id === systemId) {
-              if (!s.completed) addXP(25); // Award XP for completing a system task
-              return { ...s, completed: !s.completed };
-            }
-            return s;
-          })
-        };
+  const toggleSystem = async (goalId: string, systemId: string) => {
+    const goal = goals.find(g => g.id === goalId);
+    if (!goal) return;
+
+    const updatedSystems = goal.systems.map(s => {
+      if (s.id === systemId) {
+        if (!s.completed) addXP(25);
+        return { ...s, completed: !s.completed };
       }
-      return goal;
-    }));
+      return s;
+    });
+
+    try {
+      // Optimistic update
+      setGoals(goals.map(g => g.id === goalId ? { ...g, systems: updatedSystems } : g));
+      await updateDocument('goals', goalId, { systems: updatedSystems });
+    } catch (error) {
+      console.error("Error updating system:", error);
+      await fetchGoals(); // Revert on error
+    }
+  };
+
+  const handleDeleteGoal = async (id: string) => {
+    try {
+      setGoals(goals.filter(g => g.id !== id));
+      await deleteDocument('goals', id);
+    } catch (error) {
+      console.error("Error deleting goal:", error);
+      await fetchGoals();
+    }
   };
 
   return (
@@ -84,7 +115,6 @@ export default function GPSPage() {
         </button>
       </div>
 
-      {/* Add Goal Modal/Form */}
       <AnimatePresence>
         {isAdding && (
           <motion.div 
@@ -156,38 +186,50 @@ export default function GPSPage() {
         )}
       </AnimatePresence>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {goals.map((goal) => (
-          <motion.div 
-            layout
-            key={goal.id}
-            className="p-6 glass-card rounded-2xl group hover:border-accent-purple/50 transition-all"
-          >
-            <h4 className="text-xl font-bold mb-2 group-hover:text-accent-purple transition-colors">{goal.title}</h4>
-            <p className="text-zinc-400 text-sm mb-6 italic">"{goal.purpose}"</p>
-            
-            <div className="space-y-3">
-              <h5 className="text-xs font-bold uppercase tracking-wider text-zinc-500">Daily Systems</h5>
-              {goal.systems.map((s) => (
-                <div 
-                  key={s.id}
-                  onClick={() => toggleSystem(goal.id!, s.id)}
-                  className={cn(
-                    "flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer",
-                    s.completed 
-                      ? "bg-accent-green/10 border-accent-green/30 text-accent-green" 
-                      : "bg-zinc-950/50 border-zinc-800 text-zinc-300 hover:border-zinc-700"
-                  )}
-                >
-                  {s.completed ? <CheckCircle2 className="w-5 h-5" /> : <Circle className="w-5 h-5" />}
-                  <span className={cn(s.completed && "line-through opacity-70")}>{s.label}</span>
-                  {s.completed && <span className="ml-auto text-xs font-bold">+25 XP</span>}
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        ))}
-      </div>
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="w-8 h-8 text-accent-purple animate-spin" />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {goals.map((goal) => (
+            <motion.div 
+              layout
+              key={goal.id}
+              className="p-6 glass-card rounded-2xl group hover:border-accent-purple/50 transition-all relative"
+            >
+              <button 
+                onClick={() => handleDeleteGoal(goal.id!)}
+                className="absolute top-4 right-4 p-2 text-zinc-600 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+              <h4 className="text-xl font-bold mb-2 group-hover:text-accent-purple transition-colors">{goal.title}</h4>
+              <p className="text-zinc-400 text-sm mb-6 italic">"{goal.purpose}"</p>
+              
+              <div className="space-y-3">
+                <h5 className="text-xs font-bold uppercase tracking-wider text-zinc-500">Daily Systems</h5>
+                {goal.systems.map((s) => (
+                  <div 
+                    key={s.id}
+                    onClick={() => toggleSystem(goal.id!, s.id)}
+                    className={cn(
+                      "flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer",
+                      s.completed 
+                        ? "bg-accent-green/10 border-accent-green/30 text-accent-green" 
+                        : "bg-zinc-950/50 border-zinc-800 text-zinc-300 hover:border-zinc-700"
+                    )}
+                  >
+                    {s.completed ? <CheckCircle2 className="w-5 h-5" /> : <Circle className="w-5 h-5" />}
+                    <span className={cn(s.completed && "line-through opacity-70")}>{s.label}</span>
+                    {s.completed && <span className="ml-auto text-xs font-bold">+25 XP</span>}
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
