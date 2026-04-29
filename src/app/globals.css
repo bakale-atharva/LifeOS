@@ -1,133 +1,25 @@
-@import "tailwindcss";
-
-@theme {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #05070a;
-  --foreground: #f0f6fc;
-  --ascend-gold: #c5a059;
-  --ascend-gold-bright: #e2c08d;
-  --ascend-blue: #3b82f6;
-  --ascend-panel: rgba(15, 20, 30, 0.8);
-  --ascend-border: rgba(255, 255, 255, 0.08);
-  --ascend-glow: rgba(197, 160, 89, 0.2);
+  --background: #09090b; /* zinc-950 */
+  --foreground: #fafafa; /* zinc-50 */
+  --card: #18181b; /* zinc-900 */
+  --card-foreground: #fafafa;
 }
 
 body {
-  background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans);
-  overflow-x: hidden;
-  min-height: 100vh;
-  width: 100vw;
-  background-image: 
-    radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.05), transparent 50%),
-    radial-gradient(circle at 100% 100%, rgba(197, 160, 89, 0.03), transparent 50%);
-}
-
-/* Ascend Panels */
-.ascend-panel {
-  background: var(--ascend-panel);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--ascend-border);
-  border-radius: 1rem;
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-  transition: all 0.3s ease;
-}
-
-.ascend-panel:hover {
-  border-color: rgba(197, 160, 89, 0.2);
-}
-
-.ascend-card-header {
-  @apply text-[11px] font-bold tracking-[0.2em] text-gray-500 uppercase mb-4;
-}
-
-/* Circular Progress Bar */
-.circular-progress {
-  position: relative;
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: conic-gradient(var(--ascend-gold) calc(var(--progress) * 1%), #1a202c 0);
-  box-shadow: 0 0 20px var(--ascend-glow);
-}
-
-.circular-progress::before {
-  content: "";
-  position: absolute;
-  width: 160px;
-  height: 160px;
-  border-radius: 50%;
   background: var(--background);
 }
 
-.circular-progress-inner {
-  position: relative;
-  text-align: center;
-  z-index: 1;
-}
-
-/* Navigation */
-.nav-item {
-  @apply flex flex-col items-center p-3 text-gray-500 transition-all duration-300 hover:text-white;
-}
-
-.nav-item.active {
-  @apply text-ascend-gold;
-}
-
-.nav-item-icon {
-  @apply mb-1 transition-transform duration-300 group-hover:scale-110;
-}
-
-/* Typography */
-.text-ascend {
-  font-family: var(--font-sans);
-  letter-spacing: 0.3em;
-  @apply uppercase font-bold;
-}
-
-.gold-glow {
-  text-shadow: 0 0 10px var(--ascend-glow);
-}
-
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 4px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--ascend-border);
-  border-radius: 10px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--ascend-gold);
-}
-
-/* Progress Bars */
-.progress-bg {
-  @apply w-full h-1.5 bg-gray-800 rounded-full overflow-hidden;
-}
-
-.progress-fill {
-  @apply h-full bg-ascend-gold rounded-full transition-all duration-500;
-  box-shadow: 0 0 10px rgba(197, 160, 89, 0.4);
-}
-
-/* Sidebar Overlay */
-.sidebar-overlay {
-  @apply fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300;
-}
-
-.sidebar-content {
-  @apply fixed left-0 top-0 bottom-0 w-72 bg-[#0a0d14] border-r border-white/5 z-50 transform transition-transform duration-300 shadow-2xl;
+@layer utilities {
+  .neon-border {
+    @apply border border-opacity-20 border-accent-purple shadow-[0_0_15px_rgba(168,85,247,0.2)];
+  }
+  
+  .glass-card {
+    @apply bg-zinc-900/50 backdrop-blur-md border border-zinc-800;
+  }
 }
