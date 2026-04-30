@@ -3,21 +3,38 @@
 import { useStore } from '@/store/useStore';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Shield, Zap, Sparkles, BookOpen, Dumbbell, Cpu, Camera, Edit2, Check, X } from 'lucide-react';
+import { User, Shield, Zap, Sparkles, BookOpen, Dumbbell, Cpu, Camera, Edit2, Check, X, Loader2 } from 'lucide-react';
 import SpiderSkillTree from '@/components/profile/SpiderSkillTree';
+import { setDocument } from '@/lib/firestoreUtils';
 
 export default function ProfilePage() {
-  const { level, xp, skillPoints, displayName, profileImage, setProfile } = useStore();
+  const { level, xp, skillPoints, displayName, profileImage, streak, unlockedSkills, setProfile } = useStore();
   const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [newName, setNewName] = useState(displayName);
   const [newImage, setNewImage] = useState(profileImage);
 
   const nextLevelXP = level * 1000;
   const progress = (xp / nextLevelXP) * 100;
 
-  const handleSaveIdentity = () => {
-    setProfile({ displayName: newName, profileImage: newImage });
-    setIsEditing(false);
+  const handleSaveIdentity = async () => {
+    setIsSaving(true);
+    try {
+      // 1. Update Firestore directly for guaranteed sync
+      await setDocument('user', 'profile', {
+        displayName: newName,
+        profileImage: newImage,
+        xp, level, streak, skillPoints, unlockedSkills // Include other fields to maintain consistency
+      });
+      
+      // 2. Update local store
+      setProfile({ displayName: newName, profileImage: newImage });
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Failed to save identity:", error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -89,9 +106,10 @@ export default function ProfilePage() {
                   <div className="flex gap-2">
                     <button 
                       onClick={handleSaveIdentity}
-                      className="p-2 bg-accent-purple rounded-lg text-white"
+                      disabled={isSaving}
+                      className="p-2 bg-accent-purple rounded-lg text-white disabled:opacity-50"
                     >
-                      <Check className="w-5 h-5" />
+                      {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" />}
                     </button>
                     <button 
                       onClick={() => setIsEditing(false)}
