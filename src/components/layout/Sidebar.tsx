@@ -8,7 +8,8 @@ import {
   HeartPulse, 
   Users, 
   Wallet,
-  LayoutDashboard
+  LayoutDashboard,
+  Swords
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
@@ -20,6 +21,7 @@ const menuItems = [
   { icon: HeartPulse, label: 'Health OS', href: '/health' },
   { icon: Users, label: 'Relationships', href: '/relationships' },
   { icon: Wallet, label: 'Finance', href: '/finance' },
+  { icon: Swords, label: 'Inventory', href: '/inventory' },
 ];
 
 export default function Sidebar() {

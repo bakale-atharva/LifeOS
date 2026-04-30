@@ -1,6 +1,6 @@
 # LifeOS Project Memory
 
-## Project Status: Phase 3 in Progress
+## Project Status: Phase 4 in Progress
 **Last Updated:** Thursday, 30 April 2026
 
 ### 🚀 Tech Stack
@@ -43,9 +43,14 @@
    - **XP for Saving:** Claim +200 XP if staying under budget.
    - **Location:** `/finance`
 
-7. **Dashboard**
+7. **System 6: Inventory System** (Phase 4)
+   - **Armory & Gear:** Track tools (Tech, Fitness, etc.) with "Equipped" vs "Stored" states.
+   - **Skill Tree:** RPG-style radial nodes tracking skill levels and XP progression.
+   - **Gear Synergy:** Equipped gear provides % XP boosts to specific skills.
+   - **Location:** `/inventory`
+
+8. **Dashboard**
    - Overview of all active systems.
 
 ### ⏭ Next Steps (Phase 4)
 - **Quest System:** Advanced task management with "boss fights" for major goals.
-- **Inventory System:** Track digital/physical assets and skills.
