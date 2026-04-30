@@ -45,12 +45,23 @@
 
 7. **System 6: Inventory System** (Phase 4)
    - **Armory & Gear:** Track tools (Tech, Fitness, etc.) with "Equipped" vs "Stored" states.
-   - **Skill Tree:** RPG-style radial nodes tracking skill levels and XP progression.
-   - **Gear Synergy:** Equipped gear provides % XP boosts to specific skills.
-   - **Location:** `/inventory`
+   - **XP Persistence:** Global XP and Level now sync to Firestore (`user/profile`).
+   - **Location:** `/inventory` (Armory only)
 
-8. **Dashboard**
+8. **System 7: User Profile & Skill Tree** (Phase 4)
+   - **Spider-Man (PS5) Skill Tree:** Multi-tier nodes for Engineering, Fitness, Content, and Mental.
+   - **Hold to Unlock:** Immersive interaction requiring "Skill Points" (SP).
+   - **Skill Points:** Earned through the Quest System.
+   - **Location:** `/profile`
+
+9. **System 8: Quest System** (Phase 4)
+   - **Boss Fights:** Major milestones that reward XP and Skill Points.
+   - **Real-world Loop:** Complete "Indeed Clone" -> Get Engineering SP -> Unlock "React Architect".
+   - **Location:** `/quests`
+
+10. **Dashboard**
    - Overview of all active systems.
 
-### ⏭ Next Steps (Phase 4)
-- **Quest System:** Advanced task management with "boss fights" for major goals.
+### ⏭ Next Steps (Phase 5)
+- **Combat System:** Turn-based productivity battles.
+- **Narrative AI:** AI-driven narrator that comments on your progress.

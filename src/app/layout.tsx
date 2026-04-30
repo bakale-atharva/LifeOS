@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import TopBar from "@/components/layout/TopBar";
 import Sidebar from "@/components/layout/Sidebar";
+import StoreSync from "@/components/layout/StoreSync";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,6 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} bg-zinc-950 text-zinc-50 overflow-hidden`}>
+        <StoreSync />
         <TopBar />
         <div className="flex">
           <Sidebar />

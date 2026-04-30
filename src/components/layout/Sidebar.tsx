@@ -9,19 +9,23 @@ import {
   Users, 
   Wallet,
   LayoutDashboard,
-  Swords
+  Swords,
+  UserCircle,
+  ShieldAlert
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/' },
+  { icon: UserCircle, label: 'Profile', href: '/profile' },
+  { icon: ShieldAlert, label: 'Quests', href: '/quests' },
   { icon: Target, label: 'GPS (Goals)', href: '/gps' },
   { icon: Clock, label: 'Time Management', href: '/time' },
   { icon: HeartPulse, label: 'Health OS', href: '/health' },
   { icon: Users, label: 'Relationships', href: '/relationships' },
   { icon: Wallet, label: 'Finance', href: '/finance' },
-  { icon: Swords, label: 'Inventory', href: '/inventory' },
+  { icon: Swords, label: 'Armory', href: '/inventory' },
 ];
 
 export default function Sidebar() {
