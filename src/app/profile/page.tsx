@@ -1,14 +1,24 @@
 'use client';
 
 import { useStore } from '@/store/useStore';
-import { motion } from 'framer-motion';
-import { User, Shield, Zap, Sparkles, BookOpen, Dumbbell, Cpu, Camera } from 'lucide-react';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { User, Shield, Zap, Sparkles, BookOpen, Dumbbell, Cpu, Camera, Edit2, Check, X } from 'lucide-react';
 import SpiderSkillTree from '@/components/profile/SpiderSkillTree';
 
 export default function ProfilePage() {
-  const { level, xp, skillPoints } = useStore();
+  const { level, xp, skillPoints, displayName, profileImage, setProfile } = useStore();
+  const [isEditing, setIsEditing] = useState(false);
+  const [newName, setNewName] = useState(displayName);
+  const [newImage, setNewImage] = useState(profileImage);
+
   const nextLevelXP = level * 1000;
   const progress = (xp / nextLevelXP) * 100;
+
+  const handleSaveIdentity = () => {
+    setProfile({ displayName: newName, profileImage: newImage });
+    setIsEditing(false);
+  };
 
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-12">
@@ -16,8 +26,15 @@ export default function ProfilePage() {
       <header className="flex flex-col md:flex-row gap-8 items-center md:items-end">
         <div className="relative group">
           <div className="w-32 h-32 rounded-3xl bg-zinc-900 border-2 border-accent-purple flex items-center justify-center relative overflow-hidden shadow-2xl shadow-accent-purple/20">
-            <User className="w-16 h-16 text-zinc-700" />
-            <div className="absolute inset-0 bg-accent-purple/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+            {profileImage ? (
+              <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
+            ) : (
+              <User className="w-16 h-16 text-zinc-700" />
+            )}
+            <div 
+              onClick={() => setIsEditing(true)}
+              className="absolute inset-0 bg-accent-purple/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer backdrop-blur-sm"
+            >
               <Camera className="w-6 h-6 text-accent-purple" />
             </div>
           </div>
@@ -28,7 +45,65 @@ export default function ProfilePage() {
 
         <div className="flex-1 text-center md:text-left">
           <div className="text-[10px] font-black uppercase tracking-[0.3em] text-accent-purple mb-2">Agent Identity</div>
-          <h2 className="text-4xl font-black text-zinc-100 mb-4 tracking-tight">PLAYER ONE</h2>
+          
+          <AnimatePresence mode="wait">
+            {!isEditing ? (
+              <motion.div 
+                key="display"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="flex items-center justify-center md:justify-start gap-3 mb-4"
+              >
+                <h2 className="text-4xl font-black text-zinc-100 tracking-tight">{displayName}</h2>
+                <button 
+                  onClick={() => setIsEditing(true)}
+                  className="p-2 hover:bg-zinc-800 rounded-lg text-zinc-500 hover:text-accent-purple transition-all"
+                >
+                  <Edit2 className="w-4 h-4" />
+                </button>
+              </motion.div>
+            ) : (
+              <motion.div 
+                key="edit"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="flex flex-col gap-4 mb-4"
+              >
+                <div className="flex flex-wrap items-center gap-4">
+                  <input 
+                    type="text"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    placeholder="Agent Name"
+                    className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2 text-zinc-100 focus:outline-none focus:border-accent-purple"
+                  />
+                  <input 
+                    type="text"
+                    value={newImage}
+                    onChange={(e) => setNewImage(e.target.value)}
+                    placeholder="Profile Image URL"
+                    className="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2 text-zinc-100 focus:outline-none focus:border-accent-purple"
+                  />
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={handleSaveIdentity}
+                      className="p-2 bg-accent-purple rounded-lg text-white"
+                    >
+                      <Check className="w-5 h-5" />
+                    </button>
+                    <button 
+                      onClick={() => setIsEditing(false)}
+                      className="p-2 bg-zinc-800 rounded-lg text-zinc-400"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
           
           <div className="max-w-md">
             <div className="flex justify-between text-[10px] font-bold uppercase mb-2 tracking-widest text-zinc-500">

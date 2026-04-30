@@ -17,6 +17,8 @@ export default function StoreSync() {
         const profile = await getDocument('user', 'profile');
         if (profile) {
           store.setProfile({
+            displayName: profile.displayName ?? 'Player One',
+            profileImage: profile.profileImage ?? '',
             xp: profile.xp ?? 0,
             level: profile.level ?? 1,
             streak: profile.streak ?? 1,
@@ -31,6 +33,8 @@ export default function StoreSync() {
         } else {
           // Initialize profile in DB if it doesn't exist
           await setDocument('user', 'profile', {
+            displayName: 'Player One',
+            profileImage: '',
             xp: 0,
             level: 1,
             streak: 1,
@@ -64,6 +68,8 @@ export default function StoreSync() {
       if (isSyncingFromDB.current) return;
 
       const profileData = {
+        displayName: state.displayName,
+        profileImage: state.profileImage,
         xp: state.xp,
         level: state.level,
         streak: state.streak,

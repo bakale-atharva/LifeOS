@@ -18,7 +18,6 @@ import { motion } from 'framer-motion';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/' },
-  { icon: UserCircle, label: 'Profile', href: '/profile' },
   { icon: ShieldAlert, label: 'Quests', href: '/quests' },
   { icon: Target, label: 'GPS (Goals)', href: '/gps' },
   { icon: Clock, label: 'Time Management', href: '/time' },

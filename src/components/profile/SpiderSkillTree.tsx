@@ -63,7 +63,7 @@ export default function SpiderSkillTree() {
       <div className="absolute inset-0 opacity-10 pointer-events-none" 
            style={{ backgroundImage: 'radial-gradient(circle, #3b82f6 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
-      <div className="absolute inset-0 p-20 overflow-auto scrollbar-hide">
+      <div className="absolute inset-0 p-20 overflow-auto cyber-scrollbar">
         <div className="relative min-w-[2000px] h-full">
           {/* Connection Lines (SVG) */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none">

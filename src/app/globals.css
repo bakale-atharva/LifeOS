@@ -22,4 +22,31 @@ body {
   .glass-card {
     @apply bg-zinc-900/50 backdrop-blur-md border border-zinc-800;
   }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Cyber Scrollbar */
+  .cyber-scrollbar::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+  }
+  .cyber-scrollbar::-webkit-scrollbar-track {
+    background: #09090b;
+    border-radius: 10px;
+  }
+  .cyber-scrollbar::-webkit-scrollbar-thumb {
+    background: #27272a;
+    border-radius: 10px;
+    border: 1px solid #3f3f46;
+  }
+  .cyber-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #a855f7;
+    box-shadow: 0 0 10px rgba(168,85,247,0.4);
+  }
 }

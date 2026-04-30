@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 
 interface UserProfile {
+  displayName: string;
+  profileImage: string;
   xp: number;
   level: number;
   streak: number;
@@ -15,6 +17,8 @@ interface UserState extends UserProfile {
 }
 
 export const useStore = create<UserState>((set) => ({
+  displayName: 'Player One',
+  profileImage: '',
   xp: 0,
   level: 1,
   streak: 1,
