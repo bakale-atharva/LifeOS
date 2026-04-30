@@ -1,0 +1,354 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useStore } from '@/store/useStore';
+import { Wallet, Plus, Loader2, Sparkles, X, TrendingUp, TrendingDown, History, BarChart3, PiggyBank } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
+import { addDocument, getDocuments, updateDocument } from '@/lib/firestoreUtils';
+import TransactionModal from '@/components/finance/TransactionModal';
+import BudgetModal from '@/components/finance/BudgetModal';
+import BudgetProgress from '@/components/finance/BudgetProgress';
+
+interface Transaction {
+  id: string;
+  type: 'income' | 'expense';
+  amount: number;
+  category: string;
+  description: string;
+  date: any; // Firestore Timestamp
+}
+
+interface Budget {
+  id: string;
+  category: string;
+  limit: number;
+}
+
+interface Toast {
+  id: string;
+  message: string;
+  xp?: number;
+}
+
+const EXPENSE_CATEGORIES = ['Food', 'Transport', 'Rent', 'Entertainment', 'Shopping', 'Health', 'Other'];
+
+export default function FinancePage() {
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [budgets, setBudgets] = useState<Budget[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [toasts, setToasts] = useState<Toast[]>([]);
+  
+  // Modal states
+  const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
+  const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
+
+  const addXP = useStore(state => state.addXP);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const [transData, budgetData] = await Promise.all([
+        getDocuments('transactions'),
+        getDocuments('budgets')
+      ]);
+      setTransactions(transData as Transaction[]);
+      setBudgets(budgetData as Budget[]);
+    } catch (error) {
+      console.error("Error fetching finance data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const showToast = (message: string, xp?: number) => {
+    const id = Math.random().toString(36).substr(2, 9);
+    setToasts(prev => [...prev, { id, message, xp }]);
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id));
+    }, 3000);
+  };
+
+  const handleLogTransaction = async (data: any) => {
+    try {
+      await addDocument('transactions', data);
+      await fetchData();
+      showToast(`Logged ${data.type}: $${data.amount}`);
+    } catch (error) {
+      console.error("Error logging transaction:", error);
+    }
+  };
+
+  const handleSaveBudget = async (data: any) => {
+    try {
+      const existing = budgets.find(b => b.category === data.category);
+      if (existing) {
+        await updateDocument('budgets', existing.id, data);
+      } else {
+        await addDocument('budgets', data);
+      }
+      await fetchData();
+      showToast(`Budget set for ${data.category}`);
+    } catch (error) {
+      console.error("Error saving budget:", error);
+    }
+  };
+
+  const claimSavingsXP = () => {
+    // Simplified logic: Check if total expenses this month are under total budget
+    const totalBudget = budgets.reduce((acc, b) => acc + b.limit, 0);
+    const totalExpenses = transactions
+      .filter(t => t.type === 'expense')
+      .reduce((acc, t) => acc + t.amount, 0);
+
+    if (totalBudget > 0 && totalExpenses < totalBudget) {
+      addXP(200);
+      showToast("Financial Discipline Awarded!", 200);
+    } else if (totalBudget === 0) {
+      showToast("Set your budgets first!");
+    } else {
+      showToast("Budget exceeded. No XP available.");
+    }
+  };
+
+  // Calculations
+  const monthlyIncome = transactions
+    .filter(t => t.type === 'income')
+    .reduce((acc, t) => acc + t.amount, 0);
+  const monthlyExpenses = transactions
+    .filter(t => t.type === 'expense')
+    .reduce((acc, t) => acc + t.amount, 0);
+  const netFlow = monthlyIncome - monthlyExpenses;
+
+  const getSpentForCategory = (category: string) => {
+    return transactions
+      .filter(t => t.type === 'expense' && t.category === category)
+      .reduce((acc, t) => acc + t.amount, 0);
+  };
+
+  // Weekly Vitals Data
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const getWeeklyData = () => {
+    const data = new Array(7).fill(0);
+    const now = new Date();
+    transactions.filter(t => t.type === 'expense').forEach(t => {
+      const tDate = t.date.toDate ? t.date.toDate() : new Date(t.date);
+      const diffDays = Math.floor((now.getTime() - tDate.getTime()) / (1000 * 60 * 60 * 24));
+      if (diffDays < 7) {
+        data[6 - diffDays] += t.amount;
+      }
+    });
+    return data;
+  };
+
+  const weeklyVitals = getWeeklyData();
+  const maxWeekly = Math.max(...weeklyVitals, 1);
+
+  return (
+    <div className="p-8 max-w-7xl mx-auto relative min-h-screen">
+      <AnimatePresence>
+        {toasts.map((toast) => (
+          <motion.div
+            key={toast.id}
+            initial={{ opacity: 0, x: 50, scale: 0.9 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="fixed bottom-8 right-8 z-[200] glass-card px-6 py-4 rounded-2xl border-accent-purple/30 bg-zinc-900/90 shadow-2xl flex items-center gap-4 min-w-[300px]"
+          >
+            <div className="w-10 h-10 rounded-full bg-accent-purple/20 flex items-center justify-center text-accent-purple">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-bold text-zinc-100">{toast.message}</p>
+              {toast.xp && <p className="text-xs text-accent-purple">+{toast.xp} XP Earned</p>}
+            </div>
+            <button onClick={() => setToasts(toasts.filter(t => t.id !== toast.id))}>
+              <X className="w-4 h-4 text-zinc-500 hover:text-zinc-100" />
+            </button>
+          </motion.div>
+        ))}
+      </AnimatePresence>
+
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        <div>
+          <h2 className="text-4xl font-black flex items-center gap-4 tracking-tight text-zinc-100">
+            <Wallet className="text-accent-purple w-10 h-10" />
+            Finance Vitals
+          </h2>
+          <p className="text-zinc-400 mt-2 text-lg">Resource management and liquidity tracking.</p>
+        </div>
+        
+        <div className="flex gap-4">
+          <button 
+            onClick={() => setIsBudgetModalOpen(true)}
+            className="bg-zinc-900 hover:bg-zinc-800 text-zinc-300 px-6 py-3 rounded-2xl flex items-center gap-3 font-bold transition-all border border-zinc-800"
+          >
+            <BarChart3 className="w-5 h-5" />
+            Set Budgets
+          </button>
+          <button 
+            onClick={() => setIsTransactionModalOpen(true)}
+            className="bg-accent-purple hover:bg-accent-purple/90 text-white px-6 py-3 rounded-2xl flex items-center gap-3 font-bold transition-all shadow-lg shadow-accent-purple/20"
+          >
+            <Plus className="w-5 h-5" />
+            Log Transaction
+          </button>
+        </div>
+      </header>
+
+      {loading ? (
+        <div className="h-[60vh] flex flex-col items-center justify-center gap-4">
+          <Loader2 className="w-10 h-10 text-accent-purple animate-spin" />
+          <p className="text-zinc-500 font-medium animate-pulse">Syncing financial ledgers...</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          <div className="lg:col-span-2 space-y-8">
+            {/* Overview Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="glass-card p-6 rounded-3xl border-zinc-800 bg-zinc-900/50">
+                <div className="flex items-center gap-3 text-accent-green mb-4">
+                  <TrendingUp className="w-5 h-5" />
+                  <span className="text-[10px] font-bold uppercase tracking-widest">Monthly Income</span>
+                </div>
+                <div className="text-3xl font-black text-zinc-100">${monthlyIncome.toFixed(2)}</div>
+              </div>
+              <div className="glass-card p-6 rounded-3xl border-zinc-800 bg-zinc-900/50">
+                <div className="flex items-center gap-3 text-red-500 mb-4">
+                  <TrendingDown className="w-5 h-5" />
+                  <span className="text-[10px] font-bold uppercase tracking-widest">Monthly Expenses</span>
+                </div>
+                <div className="text-3xl font-black text-zinc-100">${monthlyExpenses.toFixed(2)}</div>
+              </div>
+              <div className="glass-card p-6 rounded-3xl border-zinc-800 bg-zinc-900/50 relative overflow-hidden">
+                <div className="flex items-center gap-3 text-accent-blue mb-4">
+                  <PiggyBank className="w-5 h-5" />
+                  <span className="text-[10px] font-bold uppercase tracking-widest">Net Flow</span>
+                </div>
+                <div className={cn("text-3xl font-black", netFlow >= 0 ? "text-accent-blue" : "text-red-500")}>
+                  {netFlow >= 0 ? '+' : ''}${netFlow.toFixed(2)}
+                </div>
+                <div className="absolute -right-4 -bottom-4 opacity-5">
+                  <Wallet className="w-24 h-24" />
+                </div>
+              </div>
+            </div>
+
+            {/* Weekly Chart */}
+            <div className="glass-card p-8 rounded-3xl border-zinc-800">
+              <h3 className="text-xl font-bold mb-8 flex items-center justify-between">
+                Weekly Spending Burn
+                <span className="text-xs font-normal text-zinc-500 tracking-normal">Last 7 days</span>
+              </h3>
+              <div className="flex items-end justify-between gap-4 h-48 px-4">
+                {weeklyVitals.map((amount, idx) => (
+                  <div key={idx} className="flex-1 flex flex-col items-center gap-3">
+                    <div className="w-full relative group">
+                      <motion.div 
+                        initial={{ height: 0 }}
+                        animate={{ height: `${(amount / maxWeekly) * 100}%` }}
+                        className={cn(
+                          "w-full rounded-t-lg transition-all duration-500 relative bg-zinc-800 group-hover:bg-accent-purple group-hover:shadow-[0_0_15px_rgba(168,85,247,0.3)]",
+                          amount > 0 && "bg-zinc-700"
+                        )}
+                      />
+                      <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-zinc-900 border border-zinc-800 px-2 py-1 rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+                        ${amount.toFixed(2)}
+                      </div>
+                    </div>
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                      {days[idx]}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Recent Transactions */}
+            <div className="glass-card p-8 rounded-3xl border-zinc-800">
+              <div className="flex items-center justify-between mb-8">
+                <h3 className="text-xl font-bold flex items-center gap-3">
+                  <History className="w-5 h-5 text-accent-purple" />
+                  Transaction Ledger
+                </h3>
+              </div>
+              <div className="space-y-4">
+                {transactions.slice(0, 10).map((t) => (
+                  <div key={t.id} className="flex items-center justify-between p-4 rounded-2xl bg-zinc-950 border border-zinc-800/50 hover:border-zinc-700 transition-all">
+                    <div className="flex items-center gap-4">
+                      <div className={cn(
+                        "p-2.5 rounded-xl border",
+                        t.type === 'income' ? "bg-accent-green/10 border-accent-green/20 text-accent-green" : "bg-red-500/10 border-red-500/20 text-red-500"
+                      )}>
+                        {t.type === 'income' ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+                      </div>
+                      <div>
+                        <div className="font-bold text-zinc-100 text-sm">{t.description || t.category}</div>
+                        <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest mt-0.5">{t.category}</div>
+                      </div>
+                    </div>
+                    <div className={cn("font-bold", t.type === 'income' ? "text-accent-green" : "text-zinc-100")}>
+                      {t.type === 'income' ? '+' : '-'}${t.amount.toFixed(2)}
+                    </div>
+                  </div>
+                ))}
+                {transactions.length === 0 && (
+                  <div className="text-center py-12 text-zinc-500 text-sm">No transactions found in this period.</div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-8">
+            {/* Budget Progress */}
+            <div className="glass-card p-8 rounded-3xl border-zinc-800 sticky top-8">
+              <h3 className="text-xl font-bold mb-8">Budget Status</h3>
+              <div className="space-y-8 mb-8">
+                {budgets.map(budget => (
+                  <BudgetProgress 
+                    key={budget.id}
+                    category={budget.category}
+                    spent={getSpentForCategory(budget.category)}
+                    limit={budget.limit}
+                  />
+                ))}
+                {budgets.length === 0 && (
+                  <div className="text-sm text-zinc-500 text-center py-8">
+                    No active budgets. Initialize one to start tracking.
+                  </div>
+                )}
+              </div>
+              
+              <button
+                onClick={claimSavingsXP}
+                className="w-full py-4 rounded-2xl bg-accent-blue/10 text-accent-blue border border-accent-blue/20 font-bold text-xs hover:bg-accent-blue hover:text-white transition-all flex items-center justify-center gap-3"
+              >
+                <Sparkles className="w-4 h-4" />
+                Claim Savings XP (+200)
+              </button>
+            </div>
+          </div>
+
+        </div>
+      )}
+
+      {/* Modals */}
+      <TransactionModal 
+        isOpen={isTransactionModalOpen}
+        onClose={() => setIsTransactionModalOpen(false)}
+        onLog={handleLogTransaction}
+      />
+      
+      <BudgetModal 
+        isOpen={isBudgetModalOpen}
+        onClose={() => setIsBudgetModalOpen(false)}
+        onSave={handleSaveBudget}
+        categories={EXPENSE_CATEGORIES}
+      />
+    </div>
+  );
+}

@@ -36,8 +36,16 @@
    - **XP Rewards:** +50 XP for new contacts, +20 XP for interactions.
    - **Location:** `/relationships`
 
-6. **Dashboard**
+6. **System 5: Finance System** (Phase 3)
+   - **Expense/Income Tracking:** Log daily transactions with categories.
+   - **Budgeting:** Set monthly limits per category with visual progress bars.
+   - **Weekly Spending Burn:** Bar chart showing expenses over the last 7 days.
+   - **XP for Saving:** Claim +200 XP if staying under budget.
+   - **Location:** `/finance`
+
+7. **Dashboard**
    - Overview of all active systems.
 
-### ⏭ Next Steps (Phase 3)
-- **Finance System:** Budgeting & expense tracking.
+### ⏭ Next Steps (Phase 4)
+- **Quest System:** Advanced task management with "boss fights" for major goals.
+- **Inventory System:** Track digital/physical assets and skills.
