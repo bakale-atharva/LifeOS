@@ -18,6 +18,10 @@ const config: Config = {
           blue: "#3B82F6",
         },
       },
+      fontFamily: {
+        heading: ["var(--font-bricolage)"],
+        sans: ["var(--font-poppins)"],
+      },
     },
   },
   plugins: [],

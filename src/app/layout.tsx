@@ -1,11 +1,20 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Poppins, Bricolage_Grotesque } from "next/font/google";
 import "./globals.css";
 import TopBar from "@/components/layout/TopBar";
 import Sidebar from "@/components/layout/Sidebar";
 import StoreSync from "@/components/layout/StoreSync";
 
-const inter = Inter({ subsets: ["latin"] });
+const poppins = Poppins({ 
+  subsets: ["latin"], 
+  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-poppins" 
+});
+
+const bricolage = Bricolage_Grotesque({ 
+  subsets: ["latin"],
+  variable: "--font-bricolage"
+});
 
 export const metadata: Metadata = {
   title: "LifeOS | Master Your Reality",
@@ -19,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-zinc-950 text-zinc-50 overflow-hidden`}>
+      <body className={`${poppins.variable} ${bricolage.variable} font-sans bg-zinc-950 text-zinc-50 overflow-hidden`}>
         <StoreSync />
         <TopBar />
         <div className="flex">
