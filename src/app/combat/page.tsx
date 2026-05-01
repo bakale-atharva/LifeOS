@@ -20,9 +20,9 @@ export default function CombatArenaPage() {
   const hpPercentage = (combatState.bossHP / combatState.bossMaxHP) * 100;
 
   return (
-    <div className="p-8 max-w-6xl mx-auto h-[calc(100vh-100px)] flex flex-col">
+    <div className="p-8 max-w-6xl mx-auto h-full flex flex-col bg-zinc-950 text-zinc-50 overflow-hidden">
       <header className="mb-12 shrink-0">
-        <h2 className="text-4xl font-black flex items-center gap-4 text-zinc-100 italic tracking-tighter">
+        <h2 className="text-4xl font-black flex items-center gap-4 text-zinc-100 italic tracking-tighter font-heading">
           <Zap className="text-accent-blue w-10 h-10 fill-accent-blue/20" />
           COMBAT_ARENA.EXE
         </h2>
@@ -31,11 +31,11 @@ export default function CombatArenaPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 flex-1 min-h-0">
         {/* Boss Visual Area */}
-        <div className="lg:col-span-2 flex flex-col gap-8">
-          <div className="glass-card flex-1 rounded-3xl border-zinc-800 bg-zinc-900/50 flex flex-col items-center justify-center p-12 relative overflow-hidden">
+        <div className="lg:col-span-2 flex flex-col gap-8 min-h-[400px]">
+          <div className="glass-card flex-1 rounded-3xl border-zinc-800 bg-zinc-900/50 flex flex-col items-center justify-center p-12 relative overflow-hidden shadow-2xl">
             {/* Background Grid/Effect */}
-            <div className="absolute inset-0 opacity-5 pointer-events-none" 
-                 style={{ backgroundImage: 'radial-gradient(circle, #3b82f6 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+            <div className="absolute inset-0 opacity-10 pointer-events-none" 
+                 style={{ backgroundImage: 'radial-gradient(circle, #3b82f6 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
             
             <motion.div
               animate={{ 
