@@ -1,6 +1,6 @@
 # LifeOS Project Memory
 
-## Project Status: Phase 4 in Progress
+## Project Status: Phase 6 Initializing
 **Last Updated:** Thursday, 30 April 2026
 
 ### 🚀 Tech Stack
@@ -59,9 +59,21 @@
    - **Real-world Loop:** Complete "Indeed Clone" -> Get Engineering SP -> Unlock "React Architect".
    - **Location:** `/quests`
 
-10. **Dashboard**
-   - Overview of all active systems.
+10. **Combat System** (Phase 5)
+    - **Passive Integration:** Real-world actions (hydration, focus, budget) deal damage to active bosses.
+    - **Boss Arena:** Cyber-HUD visualizer with health bars and battle logs.
+    - **Persistence:** Boss HP and status synced to Firestore.
+    - **Location:** `/combat`
 
-### ⏭ Next Steps (Phase 5)
-- **Combat System:** Turn-based productivity battles.
-- **Narrative AI:** AI-driven narrator that comments on your progress.
+11. **Narrative AI** (Phase 5)
+    - **Nvidia NIM Integration:** Real LLM (Llama 3.1) generates dramatic combat narration.
+    - **Contextual Awareness:** AI knows the action performed and the boss's status.
+    - **Secure API:** Next.js route for key protection.
+
+12. **Dashboard**
+    - Overview of all active systems.
+
+### ⏭ Next Steps (Phase 6)
+- **World Map:** A visual representation of your life's progress.
+- **Social Integration:** Shared boss fights or friend "armories".
+- **Advanced Analytics:** Deeper insights into productivity trends.

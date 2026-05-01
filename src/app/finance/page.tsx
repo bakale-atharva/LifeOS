@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useStore } from '@/store/useStore';
-import { Wallet, Plus, Loader2, Sparkles, X, TrendingUp, TrendingDown, History, BarChart3, PiggyBank } from 'lucide-react';
+import { Wallet, Plus, Loader2, Sparkles, X, TrendingUp, TrendingDown, History, BarChart3, PiggyBank, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { addDocument, getDocuments, updateDocument } from '@/lib/firestoreUtils';
+import { addDocument, getDocuments, updateDocument, deleteDocument } from '@/lib/firestoreUtils';
 import TransactionModal from '@/components/finance/TransactionModal';
 import BudgetModal from '@/components/finance/BudgetModal';
 import BudgetProgress from '@/components/finance/BudgetProgress';
+import DonutChart from '@/components/charts/DonutChart';
 
 interface Transaction {
   id: string;
@@ -33,6 +34,16 @@ interface Toast {
 
 const EXPENSE_CATEGORIES = ['Food', 'Transport', 'Rent', 'Entertainment', 'Shopping', 'Health', 'Other'];
 
+const CATEGORY_COLORS: Record<string, string> = {
+  Food: '#F87171',
+  Transport: '#60A5FA',
+  Rent: '#A855F7',
+  Entertainment: '#FBBF24',
+  Shopping: '#34D399',
+  Health: '#10B981',
+  Other: '#94A3B8',
+};
+
 export default function FinancePage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [budgets, setBudgets] = useState<Budget[]>([]);
@@ -43,7 +54,7 @@ export default function FinancePage() {
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
   const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
 
-  const addXP = useStore(state => state.addXP);
+  const { addXP, dealDamage } = useStore();
 
   useEffect(() => {
     fetchData();
@@ -55,7 +66,13 @@ export default function FinancePage() {
         getDocuments('transactions'),
         getDocuments('budgets')
       ]);
-      setTransactions(transData as Transaction[]);
+      // Sort transactions by date descending
+      const sortedTrans = (transData as Transaction[]).sort((a, b) => {
+        const dateA = a.date?.toDate ? a.date.toDate().getTime() : new Date(a.date).getTime();
+        const dateB = b.date?.toDate ? b.date.toDate().getTime() : new Date(b.date).getTime();
+        return dateB - dateA;
+      });
+      setTransactions(sortedTrans);
       setBudgets(budgetData as Budget[]);
     } catch (error) {
       console.error("Error fetching finance data:", error);
@@ -77,8 +94,19 @@ export default function FinancePage() {
       await addDocument('transactions', data);
       await fetchData();
       showToast(`Logged ${data.type}: $${data.amount}`);
+      dealDamage(10, 'Fiscal Beam');
     } catch (error) {
       console.error("Error logging transaction:", error);
+    }
+  };
+
+  const handleDeleteTransaction = async (id: string) => {
+    try {
+      await deleteDocument('transactions', id);
+      await fetchData();
+      showToast("Transaction deleted");
+    } catch (error) {
+      console.error("Error deleting transaction:", error);
     }
   };
 
@@ -92,6 +120,7 @@ export default function FinancePage() {
       }
       await fetchData();
       showToast(`Budget set for ${data.category}`);
+      dealDamage(20, 'Resource Allocation');
     } catch (error) {
       console.error("Error saving budget:", error);
     }
@@ -107,6 +136,7 @@ export default function FinancePage() {
     if (totalBudget > 0 && totalExpenses < totalBudget) {
       addXP(200);
       showToast("Financial Discipline Awarded!", 200);
+      dealDamage(100, 'Economic Singularity');
     } else if (totalBudget === 0) {
       showToast("Set your budgets first!");
     } else {
@@ -128,6 +158,12 @@ export default function FinancePage() {
       .filter(t => t.type === 'expense' && t.category === category)
       .reduce((acc, t) => acc + t.amount, 0);
   };
+
+  const donutData = EXPENSE_CATEGORIES.map(cat => ({
+    label: cat,
+    value: getSpentForCategory(cat),
+    color: CATEGORY_COLORS[cat] || '#94A3B8'
+  })).filter(item => item.value > 0);
 
   // Weekly Vitals Data
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -174,11 +210,11 @@ export default function FinancePage() {
 
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
-          <h2 className="text-4xl font-black flex items-center gap-4 tracking-tight text-zinc-100">
+          <h2 className="text-4xl font-black flex items-center gap-4 tracking-tight text-zinc-100 italic">
             <Wallet className="text-accent-purple w-10 h-10" />
-            Finance Vitals
+            FINANCE_VITALS.SYS
           </h2>
-          <p className="text-zinc-400 mt-2 text-lg">Resource management and liquidity tracking.</p>
+          <p className="text-zinc-500 mt-2 text-sm font-mono uppercase tracking-widest">Resource management and liquidity tracking.</p>
         </div>
         
         <div className="flex gap-4">
@@ -202,7 +238,7 @@ export default function FinancePage() {
       {loading ? (
         <div className="h-[60vh] flex flex-col items-center justify-center gap-4">
           <Loader2 className="w-10 h-10 text-accent-purple animate-spin" />
-          <p className="text-zinc-500 font-medium animate-pulse">Syncing financial ledgers...</p>
+          <p className="text-zinc-500 font-medium animate-pulse uppercase tracking-widest text-[10px]">Syncing financial ledgers...</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -238,34 +274,46 @@ export default function FinancePage() {
               </div>
             </div>
 
-            {/* Weekly Chart */}
-            <div className="glass-card p-8 rounded-3xl border-zinc-800">
-              <h3 className="text-xl font-bold mb-8 flex items-center justify-between">
-                Weekly Spending Burn
-                <span className="text-xs font-normal text-zinc-500 tracking-normal">Last 7 days</span>
-              </h3>
-              <div className="flex items-end justify-between gap-4 h-48 px-4">
-                {weeklyVitals.map((amount, idx) => (
-                  <div key={idx} className="flex-1 flex flex-col items-center gap-3">
-                    <div className="w-full relative group">
-                      <motion.div 
-                        initial={{ height: 0 }}
-                        animate={{ height: `${(amount / maxWeekly) * 100}%` }}
-                        className={cn(
-                          "w-full rounded-t-lg transition-all duration-500 relative bg-zinc-800 group-hover:bg-accent-purple group-hover:shadow-[0_0_15px_rgba(168,85,247,0.3)]",
-                          amount > 0 && "bg-zinc-700"
-                        )}
-                      />
-                      <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-zinc-900 border border-zinc-800 px-2 py-1 rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
-                        ${amount.toFixed(2)}
-                      </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Weekly Chart */}
+                <div className="glass-card p-8 rounded-3xl border-zinc-800">
+                <h3 className="text-xl font-bold mb-8 flex items-center justify-between italic">
+                    BURN_RATE.LOG
+                    <span className="text-[10px] font-mono text-zinc-500 tracking-widest uppercase">Last 7 days</span>
+                </h3>
+                <div className="flex items-end justify-between gap-4 h-48 px-4">
+                    {weeklyVitals.map((amount, idx) => (
+                    <div key={idx} className="flex-1 flex flex-col items-center gap-3">
+                        <div className="w-full relative group">
+                        <motion.div 
+                            initial={{ height: 0 }}
+                            animate={{ height: `${(amount / maxWeekly) * 100}%` }}
+                            className={cn(
+                            "w-full rounded-t-lg transition-all duration-500 relative bg-zinc-800 group-hover:bg-accent-purple group-hover:shadow-[0_0_15px_rgba(168,85,247,0.3)]",
+                            amount > 0 && "bg-zinc-700"
+                            )}
+                        />
+                        <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-zinc-900 border border-zinc-800 px-2 py-1 rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+                            ${amount.toFixed(2)}
+                        </div>
+                        </div>
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                        {days[idx]}
+                        </div>
                     </div>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-                      {days[idx]}
-                    </div>
-                  </div>
-                ))}
-              </div>
+                    ))}
+                </div>
+                </div>
+
+                {/* Category Donut */}
+                <div className="glass-card p-8 rounded-3xl border-zinc-800 flex flex-col items-center">
+                    <h3 className="text-xl font-bold mb-8 italic self-start">SECTOR_EXPENSE.DIST</h3>
+                    {donutData.length > 0 ? (
+                        <DonutChart data={donutData} size={180} thickness={15} />
+                    ) : (
+                        <div className="h-48 flex items-center justify-center text-zinc-600 text-xs font-mono uppercase">Insufficient Data</div>
+                    )}
+                </div>
             </div>
 
             {/* Recent Transactions */}
@@ -291,8 +339,16 @@ export default function FinancePage() {
                         <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest mt-0.5">{t.category}</div>
                       </div>
                     </div>
-                    <div className={cn("font-bold", t.type === 'income' ? "text-accent-green" : "text-zinc-100")}>
-                      {t.type === 'income' ? '+' : '-'}${t.amount.toFixed(2)}
+                    <div className="flex items-center gap-4">
+                      <div className={cn("font-bold", t.type === 'income' ? "text-accent-green" : "text-zinc-100")}>
+                        {t.type === 'income' ? '+' : '-'}${t.amount.toFixed(2)}
+                      </div>
+                      <button 
+                        onClick={() => handleDeleteTransaction(t.id)}
+                        className="p-2 rounded-lg hover:bg-red-500/10 text-zinc-600 hover:text-red-500 transition-all"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
                 ))}

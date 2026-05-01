@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useStore } from '@/store/useStore';
-import { HeartPulse, Moon, Droplets, Dumbbell, Plus, Flame, Loader2, Sparkles, X, Scale } from 'lucide-react';
+import { HeartPulse, Moon, Droplets, Dumbbell, Plus, Flame, Loader2, Sparkles, X, Scale, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { addDocument, getDocuments, updateDocument } from '@/lib/firestoreUtils';
+import { addDocument, getDocuments, updateDocument, deleteDocument } from '@/lib/firestoreUtils';
 
 interface HealthData {
   id?: string;
@@ -28,7 +28,7 @@ export default function HealthOSPage() {
   const [weeklyHistory, setWeeklyHistory] = useState<HealthData[]>([]);
   const [loading, setLoading] = useState(true);
   const [toasts, setToasts] = useState<Toast[]>([]);
-  const addXP = useStore(state => state.addXP);
+  const { addXP, dealDamage } = useStore();
 
   useEffect(() => {
     fetchHealthData();
@@ -50,7 +50,8 @@ export default function HealthOSPage() {
       if (todayData) {
         setHealthData(todayData);
       } else {
-        const newRecord = { sleep: 0, water: 0, exercise: 0, weight: todayData ? todayData.weight : 70, lastUpdated: today };
+        const lastRecord = sortedData[sortedData.length - 1];
+        const newRecord = { sleep: 0, water: 0, exercise: 0, weight: lastRecord ? lastRecord.weight : 70, lastUpdated: today };
         const docRef = await addDocument('health', newRecord);
         setHealthData({ ...newRecord, id: docRef.id });
       }
@@ -76,6 +77,11 @@ export default function HealthOSPage() {
     if (xpReward > 0) {
       addXP(xpReward);
       showToast(message, xpReward);
+      
+      // Combat Integration
+      if (updates.water) dealDamage(10, 'Hydration Blast');
+      if (updates.exercise) dealDamage(25, 'Kinetic Assault');
+      if (updates.weight) dealDamage(5, 'Mass Calibration');
     }
 
     try {
@@ -85,6 +91,18 @@ export default function HealthOSPage() {
     } catch (error) {
       console.error("Error syncing health data:", error);
     }
+  };
+
+  const resetMetric = async (metric: keyof HealthData) => {
+    const defaultValues: Partial<HealthData> = {
+      sleep: 0,
+      water: 0,
+      exercise: 0,
+      weight: 70
+    };
+    
+    const value = defaultValues[metric];
+    await updateHealth({ [metric]: value }, 0, `${metric.charAt(0).toUpperCase() + metric.slice(1)} reset`);
   };
 
   if (loading) {
@@ -142,7 +160,7 @@ export default function HealthOSPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {/* Sleep Tracker */}
-        <div className="glass-card p-6 rounded-3xl border-zinc-800">
+        <div className="glass-card p-6 rounded-3xl border-zinc-800 group relative">
           <div className="flex items-center justify-between mb-6">
             <Moon className="text-accent-purple w-5 h-5" />
             <span className="text-[10px] font-bold uppercase text-zinc-500">Sleep</span>
@@ -157,16 +175,24 @@ export default function HealthOSPage() {
             />
             <div className="text-[10px] text-zinc-500 uppercase tracking-widest mt-1">Hours</div>
           </div>
-          <button 
-            onClick={() => updateHealth({ sleep: healthData.sleep }, Math.round(healthData.sleep * 10), `Logged ${healthData.sleep}h sleep`)}
-            className="w-full py-2 rounded-xl bg-accent-purple/10 text-accent-purple border border-accent-purple/20 font-bold text-xs hover:bg-accent-purple hover:text-white transition-all"
-          >
-            Log Entry
-          </button>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => updateHealth({ sleep: healthData.sleep }, Math.round(healthData.sleep * 10), `Logged ${healthData.sleep}h sleep`)}
+              className="flex-1 py-2 rounded-xl bg-accent-purple/10 text-accent-purple border border-accent-purple/20 font-bold text-xs hover:bg-accent-purple hover:text-white transition-all"
+            >
+              Log Entry
+            </button>
+            <button 
+              onClick={() => resetMetric('sleep')}
+              className="p-2 rounded-xl border border-zinc-800 text-zinc-500 hover:text-red-500 hover:border-red-500/30 transition-all opacity-0 group-hover:opacity-100"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Hydration Tracker */}
-        <div className="glass-card p-6 rounded-3xl border-zinc-800">
+        <div className="glass-card p-6 rounded-3xl border-zinc-800 group relative">
           <div className="flex items-center justify-between mb-6">
             <Droplets className="text-accent-blue w-5 h-5" />
             <span className="text-[10px] font-bold uppercase text-zinc-500">Water</span>
@@ -184,16 +210,24 @@ export default function HealthOSPage() {
               />
             ))}
           </div>
-          <button 
-            onClick={() => updateHealth({ water: healthData.water + 1 }, 10, "Hydration updated")}
-            className="w-full py-2 rounded-xl bg-accent-blue/10 text-accent-blue border border-accent-blue/20 font-bold text-xs hover:bg-accent-blue hover:text-white transition-all"
-          >
-            Add Glass (+10 XP)
-          </button>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => updateHealth({ water: healthData.water + 1 }, 10, "Hydration updated")}
+              className="flex-1 py-2 rounded-xl bg-accent-blue/10 text-accent-blue border border-accent-blue/20 font-bold text-xs hover:bg-accent-blue hover:text-white transition-all"
+            >
+              Add Glass (+10 XP)
+            </button>
+            <button 
+              onClick={() => resetMetric('water')}
+              className="p-2 rounded-xl border border-zinc-800 text-zinc-500 hover:text-red-500 hover:border-red-500/30 transition-all opacity-0 group-hover:opacity-100"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Exercise Tracker */}
-        <div className="glass-card p-6 rounded-3xl border-zinc-800">
+        <div className="glass-card p-6 rounded-3xl border-zinc-800 group relative">
           <div className="flex items-center justify-between mb-6">
             <Dumbbell className="text-accent-green w-5 h-5" />
             <span className="text-[10px] font-bold uppercase text-zinc-500">Exercise</span>
@@ -202,16 +236,24 @@ export default function HealthOSPage() {
             <div className="text-4xl font-black text-zinc-100 mb-1">{healthData.exercise}m</div>
             <div className="text-[10px] text-zinc-500 uppercase tracking-widest mt-1">Minutes</div>
           </div>
-          <button 
-            onClick={() => updateHealth({ exercise: healthData.exercise + 15 }, 50, "Workout logged")}
-            className="w-full py-2 rounded-xl bg-accent-green/10 text-accent-green border border-accent-green/20 font-bold text-xs hover:bg-accent-green hover:text-white transition-all"
-          >
-            Add 15m (+50 XP)
-          </button>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => updateHealth({ exercise: healthData.exercise + 15 }, 50, "Workout logged")}
+              className="flex-1 py-2 rounded-xl bg-accent-green/10 text-accent-green border border-accent-green/20 font-bold text-xs hover:bg-accent-green hover:text-white transition-all"
+            >
+              Add 15m (+50 XP)
+            </button>
+            <button 
+              onClick={() => resetMetric('exercise')}
+              className="p-2 rounded-xl border border-zinc-800 text-zinc-500 hover:text-red-500 hover:border-red-500/30 transition-all opacity-0 group-hover:opacity-100"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Weight Tracker */}
-        <div className="glass-card p-6 rounded-3xl border-zinc-800">
+        <div className="glass-card p-6 rounded-3xl border-zinc-800 group relative">
           <div className="flex items-center justify-between mb-6">
             <Scale className="text-orange-500 w-5 h-5" />
             <span className="text-[10px] font-bold uppercase text-zinc-500">Weight</span>
@@ -226,12 +268,20 @@ export default function HealthOSPage() {
             />
             <div className="text-[10px] text-zinc-500 uppercase tracking-widest mt-1">Kilograms</div>
           </div>
-          <button 
-            onClick={() => updateHealth({ weight: healthData.weight }, 100, "Weight updated")}
-            className="w-full py-2 rounded-xl bg-orange-500/10 text-orange-500 border border-orange-500/20 font-bold text-xs hover:bg-orange-500 hover:text-white transition-all"
-          >
-            Log Weight (+100 XP)
-          </button>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => updateHealth({ weight: healthData.weight }, 100, "Weight updated")}
+              className="flex-1 py-2 rounded-xl bg-orange-500/10 text-orange-500 border border-orange-500/20 font-bold text-xs hover:bg-orange-500 hover:text-white transition-all"
+            >
+              Log Weight (+100 XP)
+            </button>
+            <button 
+              onClick={() => resetMetric('weight')}
+              className="p-2 rounded-xl border border-zinc-800 text-zinc-500 hover:text-red-500 hover:border-red-500/30 transition-all opacity-0 group-hover:opacity-100"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
 
