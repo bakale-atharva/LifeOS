@@ -3,28 +3,38 @@
 @tailwind utilities;
 
 :root {
-  --background: #09090b; /* zinc-950 */
-  --foreground: #fafafa; /* zinc-50 */
-  --card: #18181b; /* zinc-900 */
-  --card-foreground: #fafafa;
+  --background: #0B0B0B;
+  --foreground: #F8FAFC;
+  --card: #111111;
+  --brand-primary: #6366F1;
 }
 
 body {
   color: var(--foreground);
-  background: var(--background);
+  background-color: var(--background);
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.05) 0px, transparent 50%);
+  background-attachment: fixed;
+  font-family: var(--font-inter), sans-serif;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-bricolage), sans-serif;
+  font-family: var(--font-plus-jakarta), sans-serif;
+  letter-spacing: -0.02em;
 }
 
 @layer utilities {
   .neon-border {
-    @apply border border-opacity-20 border-accent-purple shadow-[0_0_15px_rgba(168,85,247,0.2)];
+    @apply border border-brand-primary/20 shadow-[0_0_15px_rgba(99,102,241,0.1)];
   }
   
   .glass-card {
-    @apply bg-zinc-900/50 backdrop-blur-md border border-zinc-800;
+    @apply bg-[#1E293B]/40 backdrop-blur-xl border border-white/[0.05] shadow-2xl;
+  }
+
+  .glass-card-hover {
+    @apply transition-all duration-300 hover:bg-[#1E293B]/60 hover:border-white/[0.1] hover:shadow-indigo-500/10;
   }
 
   .scrollbar-hide::-webkit-scrollbar {
@@ -35,22 +45,29 @@ h1, h2, h3, h4, h5, h6 {
     scrollbar-width: none;
   }
 
-  /* Cyber Scrollbar */
+  /* SaaS Sleek Scrollbar */
   .cyber-scrollbar::-webkit-scrollbar {
-    height: 6px;
-    width: 6px;
+    height: 4px;
+    width: 4px;
   }
   .cyber-scrollbar::-webkit-scrollbar-track {
-    background: #09090b;
-    border-radius: 10px;
+    background: transparent;
   }
   .cyber-scrollbar::-webkit-scrollbar-thumb {
-    background: #27272a;
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
-    border: 1px solid #3f3f46;
   }
   .cyber-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #a855f7;
-    box-shadow: 0 0 10px rgba(168,85,247,0.4);
+    background: rgba(99, 102, 241, 0.5);
   }
+}
+
+/* Animations */
+.animate-in {
+  animation: fade-in 0.6s ease-out forwards;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
 const client = new OpenAI({
-  apiKey: process.env.NVIDIA_API_KEY || "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",
+  apiKey: process.env.NVIDIA_API_KEY,
   baseURL: "https://integrate.api.nvidia.com/v1",
 });
 

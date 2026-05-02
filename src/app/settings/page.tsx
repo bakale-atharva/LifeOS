@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Settings, History, Database, ShieldCheck, Cpu } from 'lucide-react';
+import { Settings, History, Database, ShieldCheck, Cpu, ChevronRight } from 'lucide-react';
 import { getLogs } from '@/lib/firestoreUtils';
 import { motion } from 'framer-motion';
 
@@ -46,102 +46,120 @@ export default function SettingsPage() {
   }, []);
 
   return (
-    <div className="p-8 max-w-6xl mx-auto space-y-8">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="p-8 max-w-6xl mx-auto space-y-12"
+    >
       {/* Header */}
-      <div className="flex items-center gap-4 mb-8">
-        <div className="p-3 rounded-2xl bg-accent-purple/10 border border-accent-purple/20">
-          <Settings className="w-8 h-8 text-accent-purple" />
+      <header className="flex items-center gap-6 mb-12">
+        <div className="p-4 rounded-[28px] bg-brand-primary/10 border border-brand-primary/20 shadow-lg shadow-brand-primary/10">
+          <Settings className="w-10 h-10 text-brand-primary" />
         </div>
         <div>
-          <h1 className="text-3xl font-bold text-zinc-100 tracking-tight">System Settings</h1>
-          <p className="text-zinc-500">Manage your LifeOS configuration and view activity logs.</p>
+          <h1 className="text-4xl font-black text-zinc-100 tracking-tighter uppercase">SYSTEM_CONFIG</h1>
+          <p className="text-zinc-500 font-mono text-[10px] uppercase tracking-[0.3em] mt-2">Neural Link Core and Operational Records</p>
         </div>
-      </div>
+      </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
         {/* Navigation / Sections */}
-        <div className="space-y-4">
-          <div className="p-1 rounded-2xl bg-zinc-900/50 border border-zinc-800">
-            <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-accent-purple/10 text-accent-purple transition-all border border-accent-purple/20">
-              <History className="w-5 h-5" />
-              <span className="font-medium">Activity Logs</span>
+        <div className="space-y-8">
+          <div className="p-2 rounded-[32px] glass-card border-white/[0.05]">
+            <button className="w-full flex items-center justify-between px-6 py-4 rounded-2xl bg-brand-primary/10 text-brand-primary transition-all border border-brand-primary/20 group">
+              <div className="flex items-center gap-4">
+                <History className="w-5 h-5" />
+                <span className="font-bold text-xs uppercase tracking-widest">Operational Logs</span>
+              </div>
+              <ChevronRight className="w-4 h-4 opacity-50" />
             </button>
-            <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-400 hover:bg-zinc-800/50 transition-all opacity-50 cursor-not-allowed">
+            <button className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-zinc-600 transition-all opacity-40 cursor-not-allowed">
               <Database className="w-5 h-5" />
-              <span className="font-medium">Database Sync</span>
+              <span className="font-bold text-xs uppercase tracking-widest">Storage Sync</span>
             </button>
-            <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-400 hover:bg-zinc-800/50 transition-all opacity-50 cursor-not-allowed">
+            <button className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-zinc-600 transition-all opacity-40 cursor-not-allowed">
               <ShieldCheck className="w-5 h-5" />
-              <span className="font-medium">Security</span>
+              <span className="font-bold text-xs uppercase tracking-widest">Secure Uplink</span>
             </button>
           </div>
 
-          <div className="p-6 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 space-y-4">
-            <div className="flex items-center gap-2 text-zinc-400">
+          <div className="p-10 rounded-[40px] glass-card border-white/[0.05] bg-white/[0.01] space-y-8">
+            <div className="flex items-center gap-3 text-zinc-500">
               <Cpu className="w-4 h-4" />
-              <span className="text-xs font-mono uppercase tracking-widest">System Status</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.3em]">Hardware_Status</span>
             </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-zinc-500">Database</span>
-                <span className="text-green-500 font-mono text-xs">ONLINE</span>
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Master Database</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-emerald-400 font-black text-[10px] tracking-widest">ONLINE</span>
+                </div>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-zinc-500">Sync Engine</span>
-                <span className="text-green-500 font-mono text-xs">ACTIVE</span>
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Sync Engine</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-emerald-400 font-black text-[10px] tracking-widest">ACTIVE</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Main Content Area - Logs */}
-        <div className="md:col-span-2 space-y-6">
-          <div className="p-6 rounded-3xl bg-zinc-900/50 border border-zinc-800 flex flex-col min-h-[600px]">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-zinc-100">Activity Logs</h2>
-              <span className="text-xs font-mono text-zinc-500 bg-zinc-800 px-2 py-1 rounded">
-                Last 50 entries
+        <div className="lg:col-span-2">
+          <div className="p-10 rounded-[48px] glass-card border-white/[0.05] flex flex-col min-h-[700px] relative overflow-hidden">
+            <div className="flex items-center justify-between mb-10 relative z-10">
+              <h2 className="text-2xl font-black text-zinc-100 tracking-tight flex items-center gap-4">
+                <History className="w-6 h-6 text-brand-primary" />
+                ACTIVITY_STREAM
+              </h2>
+              <span className="text-[9px] font-black text-zinc-600 bg-white/[0.03] px-3 py-1.5 rounded-lg border border-white/[0.05] uppercase tracking-widest">
+                Last 50 Events
               </span>
             </div>
 
             {loading ? (
-              <div className="flex-1 flex items-center justify-center">
-                <div className="w-8 h-8 border-2 border-accent-purple border-t-transparent rounded-full animate-spin" />
+              <div className="flex-1 flex flex-col items-center justify-center gap-6">
+                <div className="w-10 h-10 border-2 border-brand-primary border-t-transparent rounded-full animate-spin" />
+                <p className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-600">Accessing Records...</p>
               </div>
             ) : logs.length === 0 ? (
-              <div className="flex-1 flex flex-col items-center justify-center text-zinc-500 space-y-2">
-                <History className="w-12 h-12 opacity-10" />
-                <p>No activity recorded yet.</p>
+              <div className="flex-1 flex flex-col items-center justify-center text-zinc-800 gap-6 opacity-30">
+                <History className="w-16 h-16" />
+                <p className="font-bold uppercase tracking-[0.3em] text-[10px]">No activity streams detected</p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-3 relative z-10">
                 {logs.map((log, index) => (
                   <motion.div
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.05 }}
                     key={log.id}
-                    className="p-4 rounded-2xl bg-zinc-800/30 border border-zinc-800/50 hover:bg-zinc-800/50 transition-colors group"
+                    className="p-5 rounded-2xl bg-white/[0.01] border border-white/[0.03] hover:bg-white/[0.03] hover:border-brand-primary/20 transition-all group"
                   >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${
-                            log.action === 'ADD' ? 'bg-green-500/10 text-green-500 border-green-500/20' :
-                            log.action === 'UPDATE' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
-                            'bg-purple-500/10 text-purple-500 border-purple-500/20'
+                    <div className="flex items-start justify-between gap-6">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-3">
+                          <span className={`text-[8px] font-black px-2 py-0.5 rounded-md border tracking-widest ${
+                            log.action === 'ADD' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
+                            log.action === 'UPDATE' ? 'bg-brand-primary/10 text-brand-primary border-brand-primary/20' :
+                            'bg-rose-500/10 text-rose-500 border-rose-500/20'
                           }`}>
                             {log.action}
                           </span>
-                          <span className="text-xs font-mono text-zinc-500">
-                            {log.collection.toUpperCase()}
+                          <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">
+                            {log.collection}
                           </span>
                         </div>
-                        <p className="text-sm text-zinc-300 font-medium line-clamp-1 group-hover:line-clamp-none transition-all">
+                        <p className="text-sm text-zinc-400 font-medium group-hover:text-zinc-100 transition-colors">
                           {log.details}
                         </p>
                       </div>
-                      <span className="text-[10px] font-mono text-zinc-600 whitespace-nowrap mt-1">
+                      <span className="text-[9px] font-bold text-zinc-700 whitespace-nowrap mt-1 uppercase tracking-tighter">
                         {formatDate(log.timestamp)}
                       </span>
                     </div>
@@ -149,9 +167,12 @@ export default function SettingsPage() {
                 ))}
               </div>
             )}
+            
+            {/* Mesh Gradient Background */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-brand-primary/[0.02] blur-[120px] pointer-events-none" />
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

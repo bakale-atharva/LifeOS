@@ -85,8 +85,8 @@ export default function HealthOSPage() {
     }
 
     try {
-      if (healthData.id) {
-        await updateDocument('health', healthData.id, updates);
+      if (newData.id) {
+        await updateDocument('health', newData.id, updates);
       }
     } catch (error) {
       console.error("Error syncing health data:", error);
@@ -108,7 +108,7 @@ export default function HealthOSPage() {
   if (loading) {
     return (
       <div className="h-full flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-accent-green animate-spin" />
+        <Loader2 className="w-8 h-8 text-brand-primary animate-spin" />
       </div>
     );
   }
@@ -124,7 +124,12 @@ export default function HealthOSPage() {
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   return (
-    <div className="p-8 max-w-6xl mx-auto relative">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="p-8 max-w-6xl mx-auto relative"
+    >
       <div className="fixed bottom-8 right-8 z-[100] flex flex-col gap-3">
         <AnimatePresence>
           {toasts.map((toast) => (
@@ -133,14 +138,14 @@ export default function HealthOSPage() {
               initial={{ opacity: 0, x: 50, scale: 0.9 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-              className="glass-card px-6 py-4 rounded-2xl border-accent-green/30 bg-zinc-900/90 shadow-2xl flex items-center gap-4 min-w-[300px]"
+              className="glass-card px-6 py-4 rounded-2xl border-brand-primary/20 bg-[#1E293B]/80 shadow-2xl flex items-center gap-4 min-w-[300px]"
             >
-              <div className="w-10 h-10 rounded-full bg-accent-green/20 flex items-center justify-center text-accent-green">
+              <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary">
                 <Sparkles className="w-5 h-5" />
               </div>
               <div className="flex-1">
                 <p className="text-sm font-bold text-zinc-100">{toast.message}</p>
-                {toast.xp && <p className="text-xs text-accent-green">+{toast.xp} XP Earned</p>}
+                {toast.xp && <p className="text-[10px] font-bold text-brand-primary uppercase tracking-wider">+{toast.xp} XP Earned</p>}
               </div>
               <button onClick={() => setToasts(toasts.filter(t => t.id !== toast.id))}>
                 <X className="w-4 h-4 text-zinc-500 hover:text-zinc-100" />
@@ -151,143 +156,170 @@ export default function HealthOSPage() {
       </div>
 
       <header className="mb-12">
-        <h2 className="text-3xl font-bold flex items-center gap-3">
-          <HeartPulse className="text-accent-green w-8 h-8" />
-          Health OS
+        <h2 className="text-4xl font-black tracking-tighter flex items-center gap-4">
+          <HeartPulse className="text-brand-primary w-10 h-10" />
+          HEALTH_OS
         </h2>
-        <p className="text-zinc-400 mt-1">Daily biological optimization • {healthData.lastUpdated}</p>
+        <p className="text-zinc-500 mt-2 font-mono text-[10px] uppercase tracking-[0.3em]">Daily biological optimization • {healthData.lastUpdated}</p>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {/* Sleep Tracker */}
-        <div className="glass-card p-6 rounded-3xl border-zinc-800 group relative">
-          <div className="flex items-center justify-between mb-6">
-            <Moon className="text-accent-purple w-5 h-5" />
-            <span className="text-[10px] font-bold uppercase text-zinc-500">Sleep</span>
+        <motion.div 
+          whileHover={{ y: -5 }}
+          className="glass-card glass-card-hover p-8 rounded-[32px] border-white/[0.05] group relative overflow-hidden"
+        >
+          <div className="flex items-center justify-between mb-8">
+            <Moon className="text-brand-primary w-5 h-5" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Sleep Cycles</span>
           </div>
-          <div className="text-center mb-6">
+          <div className="text-center mb-8 relative z-10">
             <input 
               type="number" 
               step="0.1"
               value={healthData.sleep}
               onChange={(e) => setHealthData({ ...healthData, sleep: parseFloat(e.target.value) || 0 })}
-              className="text-4xl font-black text-zinc-100 mb-1 bg-transparent border-b border-zinc-800 w-24 text-center focus:outline-none focus:border-accent-purple transition-colors"
+              className="text-5xl font-black text-zinc-100 bg-transparent border-b-2 border-white/5 w-24 text-center focus:outline-none focus:border-brand-primary transition-colors tracking-tighter"
             />
-            <div className="text-[10px] text-zinc-500 uppercase tracking-widest mt-1">Hours</div>
+            <div className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mt-3">Duration (Hrs)</div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 relative z-10">
             <button 
               onClick={() => updateHealth({ sleep: healthData.sleep }, Math.round(healthData.sleep * 10), `Logged ${healthData.sleep}h sleep`)}
-              className="flex-1 py-2 rounded-xl bg-accent-purple/10 text-accent-purple border border-accent-purple/20 font-bold text-xs hover:bg-accent-purple hover:text-white transition-all"
+              className="flex-1 py-3 rounded-2xl bg-brand-primary text-white font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-brand-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
             >
               Log Entry
             </button>
             <button 
               onClick={() => resetMetric('sleep')}
-              className="p-2 rounded-xl border border-zinc-800 text-zinc-500 hover:text-red-500 hover:border-red-500/30 transition-all opacity-0 group-hover:opacity-100"
+              className="p-3 rounded-2xl bg-white/[0.03] border border-white/[0.05] text-zinc-500 hover:text-red-500 hover:border-red-500/30 transition-all opacity-0 group-hover:opacity-100"
             >
               <Trash2 className="w-4 h-4" />
             </button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Hydration Tracker */}
-        <div className="glass-card p-6 rounded-3xl border-zinc-800 group relative">
-          <div className="flex items-center justify-between mb-6">
-            <Droplets className="text-accent-blue w-5 h-5" />
-            <span className="text-[10px] font-bold uppercase text-zinc-500">Water</span>
+        <motion.div 
+          whileHover={{ y: -5 }}
+          className="glass-card glass-card-hover p-8 rounded-[32px] border-white/[0.05] group relative overflow-hidden"
+        >
+          <div className="flex items-center justify-between mb-8">
+            <Droplets className="text-brand-primary w-5 h-5" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Hydration</span>
           </div>
-          <div className="flex flex-wrap gap-1.5 justify-center mb-6 h-16 content-center">
+          <div className="flex flex-wrap gap-2 justify-center mb-8 h-20 content-center relative z-10">
             {Array.from({ length: 8 }).map((_, i) => (
               <motion.div
                 key={i}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: i * 0.05 }}
                 className={cn(
-                  "w-6 h-8 rounded-md border transition-all",
+                  "w-5 h-7 rounded-lg border transition-all duration-500",
                   i < healthData.water 
-                    ? "bg-accent-blue/20 border-accent-blue/50" 
-                    : "border-zinc-800 bg-zinc-950/50"
+                    ? "bg-brand-primary border-brand-primary/50 shadow-[0_0_10px_rgba(99,102,241,0.3)]" 
+                    : "border-white/[0.05] bg-white/[0.02]"
                 )}
               />
             ))}
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 relative z-10">
             <button 
               onClick={() => updateHealth({ water: healthData.water + 1 }, 10, "Hydration updated")}
-              className="flex-1 py-2 rounded-xl bg-accent-blue/10 text-accent-blue border border-accent-blue/20 font-bold text-xs hover:bg-accent-blue hover:text-white transition-all"
+              className="flex-1 py-3 rounded-2xl bg-brand-primary text-white font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-brand-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
             >
-              Add Glass (+10 XP)
+              Add Intake
             </button>
             <button 
               onClick={() => resetMetric('water')}
-              className="p-2 rounded-xl border border-zinc-800 text-zinc-500 hover:text-red-500 hover:border-red-500/30 transition-all opacity-0 group-hover:opacity-100"
+              className="p-3 rounded-2xl bg-white/[0.03] border border-white/[0.05] text-zinc-500 hover:text-red-500 hover:border-red-500/30 transition-all opacity-0 group-hover:opacity-100"
             >
               <Trash2 className="w-4 h-4" />
             </button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Exercise Tracker */}
-        <div className="glass-card p-6 rounded-3xl border-zinc-800 group relative">
-          <div className="flex items-center justify-between mb-6">
-            <Dumbbell className="text-accent-green w-5 h-5" />
-            <span className="text-[10px] font-bold uppercase text-zinc-500">Exercise</span>
+        <motion.div 
+          whileHover={{ y: -5 }}
+          className="glass-card glass-card-hover p-8 rounded-[32px] border-white/[0.05] group relative overflow-hidden"
+        >
+          <div className="flex items-center justify-between mb-8">
+            <Dumbbell className="text-brand-primary w-5 h-5" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Movement</span>
           </div>
-          <div className="text-center mb-6">
-            <div className="text-4xl font-black text-zinc-100 mb-1">{healthData.exercise}m</div>
-            <div className="text-[10px] text-zinc-500 uppercase tracking-widest mt-1">Minutes</div>
+          <div className="text-center mb-8 relative z-10">
+            <div className="text-5xl font-black text-zinc-100 tracking-tighter">{healthData.exercise}m</div>
+            <div className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mt-3">Active Minutes</div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 relative z-10">
             <button 
               onClick={() => updateHealth({ exercise: healthData.exercise + 15 }, 50, "Workout logged")}
-              className="flex-1 py-2 rounded-xl bg-accent-green/10 text-accent-green border border-accent-green/20 font-bold text-xs hover:bg-accent-green hover:text-white transition-all"
+              className="flex-1 py-3 rounded-2xl bg-brand-primary text-white font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-brand-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
             >
-              Add 15m (+50 XP)
+              Boost +15m
             </button>
             <button 
               onClick={() => resetMetric('exercise')}
-              className="p-2 rounded-xl border border-zinc-800 text-zinc-500 hover:text-red-500 hover:border-red-500/30 transition-all opacity-0 group-hover:opacity-100"
+              className="p-3 rounded-2xl bg-white/[0.03] border border-white/[0.05] text-zinc-500 hover:text-red-500 hover:border-red-500/30 transition-all opacity-0 group-hover:opacity-100"
             >
               <Trash2 className="w-4 h-4" />
             </button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Weight Tracker */}
-        <div className="glass-card p-6 rounded-3xl border-zinc-800 group relative">
-          <div className="flex items-center justify-between mb-6">
-            <Scale className="text-orange-500 w-5 h-5" />
-            <span className="text-[10px] font-bold uppercase text-zinc-500">Weight</span>
+        <motion.div 
+          whileHover={{ y: -5 }}
+          className="glass-card glass-card-hover p-8 rounded-[32px] border-white/[0.05] group relative overflow-hidden"
+        >
+          <div className="flex items-center justify-between mb-8">
+            <Scale className="text-brand-primary w-5 h-5" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Mass Vitals</span>
           </div>
-          <div className="text-center mb-6">
+          <div className="text-center mb-8 relative z-10">
             <input 
               type="number" 
               step="0.1"
               value={healthData.weight}
               onChange={(e) => setHealthData({ ...healthData, weight: parseFloat(e.target.value) || 0 })}
-              className="text-4xl font-black text-zinc-100 mb-1 bg-transparent border-b border-zinc-800 w-24 text-center focus:outline-none focus:border-orange-500 transition-colors"
+              className="text-5xl font-black text-zinc-100 bg-transparent border-b-2 border-white/5 w-24 text-center focus:outline-none focus:border-brand-primary transition-colors tracking-tighter"
             />
-            <div className="text-[10px] text-zinc-500 uppercase tracking-widest mt-1">Kilograms</div>
+            <div className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mt-3">KILOGRAMS</div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 relative z-10">
             <button 
               onClick={() => updateHealth({ weight: healthData.weight }, 100, "Weight updated")}
-              className="flex-1 py-2 rounded-xl bg-orange-500/10 text-orange-500 border border-orange-500/20 font-bold text-xs hover:bg-orange-500 hover:text-white transition-all"
+              className="flex-1 py-3 rounded-2xl bg-brand-primary text-white font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-brand-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
             >
-              Log Weight (+100 XP)
+              Calibrate
             </button>
             <button 
               onClick={() => resetMetric('weight')}
-              className="p-2 rounded-xl border border-zinc-800 text-zinc-500 hover:text-red-500 hover:border-red-500/30 transition-all opacity-0 group-hover:opacity-100"
+              className="p-3 rounded-2xl bg-white/[0.03] border border-white/[0.05] text-zinc-500 hover:text-red-500 hover:border-red-500/30 transition-all opacity-0 group-hover:opacity-100"
             >
               <Trash2 className="w-4 h-4" />
             </button>
           </div>
-        </div>
+        </motion.div>
       </div>
 
-      <div className="glass-card p-8 rounded-3xl border-zinc-800">
-        <h3 className="text-xl font-bold mb-8">Weekly Performance Vitals</h3>
-        <div className="flex items-end justify-between gap-2 h-48 px-4">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.4 }}
+        className="glass-card p-10 rounded-[40px] border-white/[0.05]"
+      >
+        <div className="flex items-center justify-between mb-12">
+          <h3 className="text-xl font-bold tracking-tight">BIO_ANALYTICS.LOG</h3>
+          <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] flex items-center gap-3">
+            <div className="w-2 h-2 rounded-full bg-brand-primary animate-pulse" />
+            Real-time Telemetry
+          </div>
+        </div>
+        
+        <div className="flex items-end justify-between gap-4 h-56 px-4">
           {days.map((day, idx) => {
             const date = new Date();
             date.setDate(date.getDate() - (6 - idx));
@@ -296,26 +328,27 @@ export default function HealthOSPage() {
             const height = dayData ? getDayHeight(dayData) : 5;
 
             return (
-              <div key={day} className="flex-1 flex flex-col items-center gap-3">
+              <div key={day} className="flex-1 flex flex-col items-center gap-4">
                 <div className="w-full relative group">
                   <motion.div 
                     initial={{ height: 0 }}
                     animate={{ height: `${height}%` }}
+                    transition={{ duration: 1, delay: 0.5 + (idx * 0.1), ease: "circOut" }}
                     className={cn(
-                      "w-full rounded-t-lg transition-all duration-500 relative",
-                      height > 70 ? "bg-accent-green shadow-[0_0_15px_rgba(16,185,129,0.3)]" : 
-                      height > 40 ? "bg-accent-blue shadow-[0_0_15px_rgba(59,130,246,0.3)]" : 
-                      "bg-zinc-800"
+                      "w-full rounded-2xl transition-all duration-500 relative",
+                      height > 70 ? "bg-brand-primary shadow-[0_0_20px_rgba(99,102,241,0.3)]" : 
+                      height > 40 ? "bg-indigo-400/60 shadow-[0_0_15px_rgba(129,140,248,0.2)]" : 
+                      "bg-white/[0.03] border border-white/[0.05]"
                     )}
                   />
                   {/* Tooltip */}
-                  <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-zinc-900 border border-zinc-800 px-2 py-1 rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
-                    {dayData ? `${Math.round(height)}% Score` : 'No Data'}
+                  <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-zinc-900 border border-white/[0.05] px-3 py-1.5 rounded-xl text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 shadow-2xl">
+                    {dayData ? `${Math.round(height)}% Score` : 'NO_DATA'}
                   </div>
                 </div>
                 <div className={cn(
-                  "text-xs font-bold uppercase tracking-wider",
-                  idx === 6 ? "text-accent-green" : "text-zinc-500"
+                  "text-[10px] font-bold uppercase tracking-widest",
+                  idx === 6 ? "text-brand-primary" : "text-zinc-600"
                 )}>
                   {day}
                 </div>
@@ -323,7 +356,7 @@ export default function HealthOSPage() {
             );
           })}
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

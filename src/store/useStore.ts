@@ -21,13 +21,13 @@ interface UserState extends UserProfile {
   setProfile: (profile: Partial<UserProfile>) => void;
   addXP: (amount: number) => void;
   updateStreak: (newStreak: number) => void;
-  dealDamage: (amount: number, actionName: string) => void;
+  dealDamage: (amount: number, actionName: string) => Promise<void>;
   addLogMessage: (message: string, type: 'player' | 'boss' | 'system') => void;
 }
 
 const calculateNextLevelXP = (level: number) => {
-  // Base 100 per level + random variance (0-50)
-  return (level * 100) + Math.floor(Math.random() * 50);
+  // Base 100 per level, increases exponentially/quadratically for progression
+  return Math.floor(100 * Math.pow(level, 1.2));
 };
 
 export const useStore = create<UserState>((set, get) => ({

@@ -73,33 +73,41 @@ export default function StoreSync() {
     loadProfile();
   }, []);
 
-  // 2. Sync changes back to Firestore
+  // 2. Sync changes back to Firestore (with debounce)
   useEffect(() => {
     // Skip initial mount and updates triggered by DB sync
     if (isInitialMount.current || isSyncingFromDB.current) return;
 
+    let timeoutId: NodeJS.Timeout;
+
     const unsubscribe = useStore.subscribe((state) => {
-      // Logic to prevent redundant writes or loops
       if (isSyncingFromDB.current) return;
 
-      const profileData = {
-        displayName: state.displayName,
-        profileImage: state.profileImage,
-        xp: state.xp,
-        level: state.level,
-        xpToNextLevel: state.xpToNextLevel,
-        streak: state.streak,
-        skillPoints: state.skillPoints,
-        unlockedSkills: state.unlockedSkills,
-        combatState: state.combatState,
-      };
+      // Debounce writes to Firestore (1 second delay)
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        const profileData = {
+          displayName: state.displayName,
+          profileImage: state.profileImage,
+          xp: state.xp,
+          level: state.level,
+          xpToNextLevel: state.xpToNextLevel,
+          streak: state.streak,
+          skillPoints: state.skillPoints,
+          unlockedSkills: state.unlockedSkills,
+          combatState: state.combatState,
+        };
 
-      setDocument('user', 'profile', profileData).catch(err => {
-        console.error("Failed to sync store to Firestore:", err);
-      });
+        setDocument('user', 'profile', profileData).catch(err => {
+          console.error("Failed to sync store to Firestore:", err);
+        });
+      }, 1000);
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   return null; // This component doesn't render anything

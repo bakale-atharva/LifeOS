@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Cpu, Dumbbell, Package, Zap, Save, Trash2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface Gear {
   id?: string;
@@ -32,8 +33,10 @@ export default function GearModal({ isOpen, onClose, onSave, onDelete, initialDa
     synergySkill: skills[0] || 'None',
     synergyBonus: 5
   });
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => {
+    setConfirmDelete(false);
     if (initialData) {
       setFormData(initialData);
     } else {
@@ -45,11 +48,20 @@ export default function GearModal({ isOpen, onClose, onSave, onDelete, initialDa
         synergyBonus: 5
       });
     }
-  }, [initialData, skills]);
+  }, [initialData, skills, isOpen]);
 
   const handleSubmit = () => {
     if (!formData.name) return;
     onSave(formData);
+  };
+
+  const handleDelete = () => {
+    if (confirmDelete) {
+      if (initialData?.id && onDelete) onDelete(initialData.id);
+    } else {
+      setConfirmDelete(true);
+      setTimeout(() => setConfirmDelete(false), 3000);
+    }
   };
 
   return (
@@ -147,10 +159,16 @@ export default function GearModal({ isOpen, onClose, onSave, onDelete, initialDa
                     </button>
                     {initialData?.id && onDelete && (
                       <button
-                        onClick={() => onDelete(initialData.id!)}
-                        className="p-3 rounded-xl border border-red-500/20 text-red-500 hover:bg-red-500/10 transition-all"
+                        onClick={handleDelete}
+                        className={cn(
+                          "p-3 rounded-xl border transition-all flex items-center gap-2",
+                          confirmDelete 
+                            ? "bg-red-500 text-white border-red-500" 
+                            : "border-red-500/20 text-red-500 hover:bg-red-500/10"
+                        )}
                       >
                         <Trash2 className="w-5 h-5" />
+                        {confirmDelete && <span className="text-xs font-bold uppercase">Confirm?</span>}
                       </button>
                     )}
                   </div>

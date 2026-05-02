@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useStore } from '@/store/useStore';
-import { Target, Plus, CheckCircle2, Circle, Trash2, Loader2 } from 'lucide-react';
+import { Target, Plus, CheckCircle2, Circle, Trash2, Loader2, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { addDocument, getDocuments, updateDocument, deleteDocument } from '@/lib/firestoreUtils';
@@ -97,139 +97,166 @@ export default function GPSPage() {
   };
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="p-8 max-w-6xl mx-auto"
+    >
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
         <div>
-          <h2 className="text-3xl font-bold flex items-center gap-3">
-            <Target className="text-accent-purple w-8 h-8" />
-            GPS Goal Setting
+          <h2 className="text-4xl font-black tracking-tighter text-zinc-100 flex items-center gap-4">
+            <Target className="text-brand-primary w-10 h-10" />
+            GOAL_SYSTEM.SYS
           </h2>
-          <p className="text-zinc-400 mt-1">Goal, Purpose, System — Ali Abdaal's Method</p>
+          <p className="text-zinc-500 mt-2 text-[10px] font-mono uppercase tracking-[0.3em]">Goal, Purpose, System — Ali Abdaal's Methodology</p>
         </div>
         <button 
           onClick={() => setIsAdding(true)}
-          className="bg-accent-purple hover:bg-accent-purple/90 text-white px-4 py-2 rounded-xl flex items-center gap-2 font-medium transition-all shadow-lg shadow-accent-purple/20"
+          className="bg-brand-primary hover:bg-brand-primary/90 text-white px-8 py-3 rounded-2xl flex items-center gap-3 font-bold text-xs uppercase tracking-widest transition-all shadow-lg shadow-brand-primary/20"
         >
-          <Plus className="w-5 h-5" />
-          Set New Goal
+          <Plus className="w-4 h-4" />
+          Define Goal
         </button>
-      </div>
+      </header>
 
       <AnimatePresence>
         {isAdding && (
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="mb-8 p-6 glass-card rounded-2xl border-accent-purple/30 bg-zinc-900/80"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="mb-16 p-10 glass-card rounded-[40px] border-brand-primary/20 bg-brand-primary/[0.02]"
           >
-            <h3 className="text-xl font-bold mb-4">Initialize New Goal</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm text-zinc-400 mb-1">Goal Title</label>
-                <input 
-                  type="text" 
-                  value={newGoal.title}
-                  onChange={e => setNewGoal({...newGoal, title: e.target.value})}
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-3 focus:outline-none focus:border-accent-purple transition-colors"
-                  placeholder="e.g., Master Next.js 14"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-zinc-400 mb-1">Purpose (The Why)</label>
-                <textarea 
-                  value={newGoal.purpose}
-                  onChange={e => setNewGoal({...newGoal, purpose: e.target.value})}
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-3 focus:outline-none focus:border-accent-purple transition-colors h-24"
-                  placeholder="Why do you want to achieve this?"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-zinc-400 mb-1">Systems (Daily/Weekly Actions)</label>
-                {newGoal.systems.map((s, i) => (
+            <h3 className="text-xl font-bold mb-10 flex items-center gap-4 tracking-tight">
+              <Sparkles className="text-brand-primary w-5 h-5" />
+              OBJECTIVE_PARAMETERS
+            </h3>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
+              <div className="space-y-8">
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-3">Designation</label>
                   <input 
-                    key={i}
                     type="text" 
-                    value={s}
-                    onChange={e => {
-                      const updated = [...newGoal.systems];
-                      updated[i] = e.target.value;
-                      setNewGoal({...newGoal, systems: updated});
-                    }}
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-3 focus:outline-none focus:border-accent-purple transition-colors mb-2"
-                    placeholder={`System ${i + 1}`}
+                    value={newGoal.title}
+                    onChange={e => setNewGoal({...newGoal, title: e.target.value})}
+                    className="w-full bg-white/[0.02] border border-white/[0.05] rounded-2xl p-4 focus:outline-none focus:border-brand-primary transition-colors text-zinc-100 text-sm font-bold"
+                    placeholder="e.g., Strategic Architecture Mastery"
                   />
-                ))}
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-3">Intent (The Why)</label>
+                  <textarea 
+                    value={newGoal.purpose}
+                    onChange={e => setNewGoal({...newGoal, purpose: e.target.value})}
+                    className="w-full bg-white/[0.02] border border-white/[0.05] rounded-2xl p-4 focus:outline-none focus:border-brand-primary transition-colors h-32 text-zinc-100 text-sm font-medium leading-relaxed"
+                    placeholder="Define the underlying purpose of this trajectory..."
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-3">Operational Systems</label>
+                <div className="space-y-3">
+                  {newGoal.systems.map((s, i) => (
+                    <input 
+                      key={i}
+                      type="text" 
+                      value={s}
+                      onChange={e => {
+                        const updated = [...newGoal.systems];
+                        updated[i] = e.target.value;
+                        setNewGoal({...newGoal, systems: updated});
+                      }}
+                      className="w-full bg-white/[0.02] border border-white/[0.05] rounded-xl p-3 focus:outline-none focus:border-brand-primary transition-colors text-zinc-400 text-xs"
+                      placeholder={`Action Protocol ${i + 1}`}
+                    />
+                  ))}
+                </div>
                 <button 
                   onClick={() => setNewGoal({...newGoal, systems: [...newGoal.systems, '']})}
-                  className="text-sm text-accent-purple hover:underline"
+                  className="mt-4 text-[10px] font-bold text-brand-primary uppercase tracking-widest hover:text-white transition-colors"
                 >
-                  + Add another system
+                  + Add Protocol
                 </button>
               </div>
-              <div className="flex gap-3 pt-2">
-                <button 
-                  onClick={handleAddGoal}
-                  className="bg-accent-purple px-6 py-2 rounded-lg font-bold"
-                >
-                  Create Goal (+100 XP)
-                </button>
-                <button 
-                  onClick={() => setIsAdding(false)}
-                  className="text-zinc-400 px-4 py-2 hover:text-zinc-100"
-                >
-                  Cancel
-                </button>
-              </div>
+            </div>
+            
+            <div className="flex gap-4">
+              <button 
+                onClick={handleAddGoal}
+                className="flex-1 bg-brand-primary py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-brand-primary/90 transition-all shadow-lg shadow-brand-primary/30"
+              >
+                Launch Trajectory (+100 XP)
+              </button>
+              <button 
+                onClick={() => setIsAdding(false)}
+                className="px-10 bg-white/[0.03] border border-white/[0.05] py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-white/[0.05] transition-all"
+              >
+                Abort
+              </button>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
       {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 text-accent-purple animate-spin" />
+        <div className="h-64 flex flex-col items-center justify-center gap-6">
+          <Loader2 className="w-10 h-10 text-brand-primary animate-spin" />
+          <p className="text-zinc-500 font-bold uppercase tracking-widest text-[9px] animate-pulse">Syncing neural objectives...</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {goals.map((goal) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {goals.map((goal, i) => (
             <motion.div 
               layout
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: i * 0.1 }}
               key={goal.id}
-              className="p-6 glass-card rounded-2xl group hover:border-accent-purple/50 transition-all relative"
+              className="p-10 glass-card glass-card-hover rounded-[40px] border-white/[0.05] group relative overflow-hidden"
             >
               <button 
                 onClick={() => handleDeleteGoal(goal.id!)}
-                className="absolute top-4 right-4 p-2 text-zinc-600 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                className="absolute top-6 right-6 p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.05] text-zinc-600 hover:text-rose-500 transition-all opacity-0 group-hover:opacity-100"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
-              <h4 className="text-xl font-bold mb-2 group-hover:text-accent-purple transition-colors">{goal.title}</h4>
-              <p className="text-zinc-400 text-sm mb-6 italic">"{goal.purpose}"</p>
+              <h4 className="text-2xl font-bold text-zinc-100 mb-3 tracking-tight group-hover:text-brand-primary transition-colors">{goal.title}</h4>
+              <p className="text-zinc-500 text-sm mb-10 font-medium leading-relaxed italic">"{goal.purpose}"</p>
               
-              <div className="space-y-3">
-                <h5 className="text-xs font-bold uppercase tracking-wider text-zinc-500">Daily Systems</h5>
+              <div className="space-y-4">
+                <h5 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 mb-6 px-1">Daily Protocols</h5>
                 {goal.systems.map((s) => (
                   <div 
                     key={s.id}
                     onClick={() => toggleSystem(goal.id!, s.id)}
                     className={cn(
-                      "flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer",
+                      "flex items-center gap-4 p-4 rounded-2xl border transition-all cursor-pointer",
                       s.completed 
-                        ? "bg-accent-green/10 border-accent-green/30 text-accent-green" 
-                        : "bg-zinc-950/50 border-zinc-800 text-zinc-300 hover:border-zinc-700"
+                        ? "bg-emerald-500/5 border-emerald-500/20 text-emerald-400" 
+                        : "bg-white/[0.02] border-white/[0.05] text-zinc-400 hover:border-white/10"
                     )}
                   >
-                    {s.completed ? <CheckCircle2 className="w-5 h-5" /> : <Circle className="w-5 h-5" />}
-                    <span className={cn(s.completed && "line-through opacity-70")}>{s.label}</span>
-                    {s.completed && <span className="ml-auto text-xs font-bold">+25 XP</span>}
+                    {s.completed ? <CheckCircle2 className="w-5 h-5 shrink-0" /> : <Circle className="w-5 h-5 shrink-0 text-zinc-700" />}
+                    <span className={cn("text-sm font-semibold tracking-tight", s.completed && "line-through opacity-40")}>{s.label}</span>
+                    {s.completed && <span className="ml-auto text-[10px] font-black text-emerald-400/50">+25 XP</span>}
                   </div>
                 ))}
               </div>
+              
+              {/* Visual Mesh Background */}
+              <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-brand-primary/5 blur-[50px] pointer-events-none group-hover:bg-brand-primary/10 transition-all duration-1000" />
             </motion.div>
           ))}
+          {goals.length === 0 && (
+            <div className="col-span-full h-80 border border-dashed border-white/[0.05] rounded-[48px] flex flex-col items-center justify-center text-zinc-700 gap-6 opacity-40">
+              <Target className="w-16 h-16" />
+              <p className="font-bold uppercase tracking-[0.3em] text-[10px]">No active trajectories established</p>
+            </div>
+          )}
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

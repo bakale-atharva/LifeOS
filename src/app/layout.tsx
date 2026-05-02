@@ -1,19 +1,18 @@
 import type { Metadata } from "next";
-import { Poppins, Bricolage_Grotesque } from "next/font/google";
+import { Plus_Jakarta_Sans, Inter } from "next/font/google";
 import "./globals.css";
 import TopBar from "@/components/layout/TopBar";
 import Sidebar from "@/components/layout/Sidebar";
 import StoreSync from "@/components/layout/StoreSync";
 
-const poppins = Poppins({ 
+const plusJakartaSans = Plus_Jakarta_Sans({ 
   subsets: ["latin"], 
-  weight: ["400", "500", "600", "700", "800", "900"],
-  variable: "--font-poppins" 
+  variable: "--font-plus-jakarta" 
 });
 
-const bricolage = Bricolage_Grotesque({ 
+const inter = Inter({ 
   subsets: ["latin"],
-  variable: "--font-bricolage"
+  variable: "--font-inter"
 });
 
 export const metadata: Metadata = {
@@ -28,7 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${poppins.variable} ${bricolage.variable} font-sans bg-zinc-950 text-zinc-50 overflow-hidden`}>
+      <body className={`${plusJakartaSans.variable} ${inter.variable} font-sans bg-zinc-950 text-zinc-50 overflow-hidden`}>
         <StoreSync />
         <TopBar />
         <div className="flex">

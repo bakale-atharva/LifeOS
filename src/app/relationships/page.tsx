@@ -80,7 +80,6 @@ export default function RelationshipsPage() {
   };
 
   const handleDeleteContact = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this contact?")) return;
     try {
       await deleteDocument('contacts', id);
       showToast("Contact deleted");
@@ -126,7 +125,12 @@ export default function RelationshipsPage() {
   );
 
   return (
-    <div className="p-8 max-w-7xl mx-auto relative min-h-screen">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="p-8 max-w-7xl mx-auto relative min-h-screen"
+    >
       {/* Toasts */}
       <div className="fixed bottom-8 right-8 z-[200] flex flex-col gap-3">
         <AnimatePresence mode="popLayout">
@@ -136,14 +140,14 @@ export default function RelationshipsPage() {
               initial={{ opacity: 0, x: 50, scale: 0.9 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-              className="glass-card px-6 py-4 rounded-2xl border-accent-blue/30 bg-zinc-900/90 shadow-2xl flex items-center gap-4 min-w-[300px]"
+              className="glass-card px-6 py-4 rounded-2xl border-brand-primary/30 bg-[#1E293B]/80 shadow-2xl flex items-center gap-4 min-w-[300px]"
             >
-              <div className="w-10 h-10 rounded-full bg-accent-blue/20 flex items-center justify-center text-accent-blue">
+              <div className="w-10 h-10 rounded-full bg-brand-primary/20 flex items-center justify-center text-brand-primary">
                 <Sparkles className="w-5 h-5" />
               </div>
               <div className="flex-1">
                 <p className="text-sm font-bold text-zinc-100">{toast.message}</p>
-                {toast.xp && <p className="text-xs text-accent-blue">+{toast.xp} XP Earned</p>}
+                {toast.xp && <p className="text-[10px] font-bold text-brand-primary uppercase tracking-widest">+{toast.xp} XP Earned</p>}
               </div>
               <button onClick={() => setToasts(toasts.filter(t => t.id !== toast.id))}>
                 <X className="w-4 h-4 text-zinc-500 hover:text-zinc-100" />
@@ -155,22 +159,22 @@ export default function RelationshipsPage() {
 
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
-          <h2 className="text-4xl font-black flex items-center gap-4 tracking-tight">
-            <Users className="text-accent-blue w-10 h-10" />
-            Social Health
+          <h2 className="text-4xl font-black tracking-tighter text-zinc-100 flex items-center gap-4">
+            <Users className="text-brand-primary w-10 h-10" />
+            SOCIAL_HEALTH
           </h2>
-          <p className="text-zinc-400 mt-2 text-lg">Manage your connections and maintain interaction loops.</p>
+          <p className="text-zinc-500 mt-2 text-[10px] font-mono uppercase tracking-[0.3em]">Manage your connections and maintain interaction loops.</p>
         </div>
         
         <div className="flex gap-4">
           <div className="relative group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 group-focus-within:text-accent-blue transition-colors" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 group-focus-within:text-brand-primary transition-colors" />
             <input 
               type="text" 
-              placeholder="Search contacts..."
+              placeholder="Filter database..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="bg-zinc-900/50 border border-zinc-800 rounded-2xl py-3 pl-12 pr-6 focus:outline-none focus:border-accent-blue transition-all w-64 text-sm"
+              className="bg-white/[0.02] border border-white/[0.05] rounded-[18px] py-3 pl-12 pr-6 focus:outline-none focus:border-brand-primary transition-all w-64 text-sm font-medium"
             />
           </div>
           <button 
@@ -178,42 +182,51 @@ export default function RelationshipsPage() {
               setEditingContact(null);
               setIsContactModalOpen(true);
             }}
-            className="bg-accent-blue hover:bg-accent-blue/90 text-white px-6 py-3 rounded-2xl flex items-center gap-3 font-bold transition-all shadow-lg shadow-accent-blue/20"
+            className="bg-brand-primary hover:bg-brand-primary/90 text-white px-8 py-3 rounded-2xl flex items-center gap-3 font-bold text-xs uppercase tracking-widest transition-all shadow-lg shadow-brand-primary/20"
           >
-            <Plus className="w-5 h-5" />
-            Add Contact
+            <Plus className="w-4 h-4" />
+            Initialize
           </button>
         </div>
       </header>
 
       {loading ? (
-        <div className="h-[60vh] flex flex-col items-center justify-center gap-4">
-          <Loader2 className="w-10 h-10 text-accent-blue animate-spin" />
-          <p className="text-zinc-500 font-medium animate-pulse">Syncing social database...</p>
+        <div className="h-[60vh] flex flex-col items-center justify-center gap-6">
+          <Loader2 className="w-10 h-10 text-brand-primary animate-spin" />
+          <p className="text-zinc-500 font-bold uppercase tracking-widest text-[9px] animate-pulse">Syncing social database...</p>
         </div>
       ) : (
         <>
           {filteredContacts.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredContacts.map(contact => (
-                <ContactCard 
-                  key={contact.id} 
-                  contact={contact} 
-                  onLogInteraction={(c) => {
-                    setActiveContact(c);
-                    setIsInteractionModalOpen(true);
-                  }}
-                  onEdit={(c) => {
-                    setEditingContact(c);
-                    setIsContactModalOpen(true);
-                  }}
-                />
+            <motion.div 
+              layout
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+            >
+              {filteredContacts.map((contact, i) => (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: i * 0.05 }}
+                  key={contact.id}
+                >
+                  <ContactCard 
+                    contact={contact} 
+                    onLogInteraction={(c) => {
+                      setActiveContact(c);
+                      setIsInteractionModalOpen(true);
+                    }}
+                    onEdit={(c) => {
+                      setEditingContact(c);
+                      setIsContactModalOpen(true);
+                    }}
+                  />
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           ) : (
-            <div className="h-[40vh] border-2 border-dashed border-zinc-800 rounded-3xl flex flex-col items-center justify-center text-zinc-500 gap-4">
-              <Users className="w-12 h-12 opacity-20" />
-              <p>No contacts found. Initialize your first connection.</p>
+            <div className="h-[40vh] border border-dashed border-white/[0.05] rounded-[40px] flex flex-col items-center justify-center text-zinc-700 gap-6 opacity-40">
+              <Users className="w-12 h-12" />
+              <p className="font-bold uppercase tracking-[0.3em] text-[9px]">No records found in database</p>
             </div>
           )}
         </>
@@ -234,6 +247,6 @@ export default function RelationshipsPage() {
         onLog={handleLogInteraction}
         contact={activeContact}
       />
-    </div>
+    </motion.div>
   );
 }

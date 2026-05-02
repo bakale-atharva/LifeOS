@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useStore } from '@/store/useStore';
-import { Clock, Play, Pause, RotateCcw, Calendar as CalendarIcon, Plus, CheckCircle2, Trash2, Loader2 } from 'lucide-react';
+import { Clock, Play, Pause, RotateCcw, Calendar as CalendarIcon, Plus, CheckCircle2, Trash2, Loader2, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { addDocument, getDocuments, deleteDocument, updateDocument } from '@/lib/firestoreUtils';
@@ -138,26 +138,36 @@ export default function TimeManagementPage() {
   };
 
   return (
-    <div className="p-8 max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="p-8 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12"
+    >
       {/* Pomodoro Section */}
-      <div className="lg:col-span-1 space-y-6">
-        <div className="glass-card p-8 rounded-3xl border-zinc-800 text-center relative overflow-hidden">
+      <div className="lg:col-span-1 space-y-8">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="glass-card p-12 rounded-[48px] border-white/[0.05] text-center relative overflow-hidden shadow-2xl"
+        >
           <div className="relative z-10">
-            <h2 className="text-xl font-bold mb-6 flex items-center justify-center gap-2">
-              <Clock className="text-accent-blue" />
-              Focus Timer
+            <h2 className="text-[10px] font-black mb-10 flex items-center justify-center gap-3 uppercase tracking-[0.4em] text-zinc-500">
+              <Clock className="text-brand-primary w-4 h-4" />
+              CHRONO_CORE
             </h2>
             
-            <div className="flex justify-center gap-2 mb-8">
+            <div className="flex justify-center gap-2 mb-12">
               {(['work', 'short', 'long'] as const).map((m) => (
                 <button
                   key={m}
                   onClick={() => switchMode(m)}
                   className={cn(
-                    "px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all",
+                    "px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all",
                     mode === m 
-                      ? "bg-accent-blue text-white shadow-[0_0_15px_rgba(59,130,246,0.4)]" 
-                      : "bg-zinc-900 text-zinc-500 hover:text-zinc-300"
+                      ? "bg-brand-primary text-white shadow-lg shadow-brand-primary/20" 
+                      : "bg-white/[0.03] text-zinc-600 hover:text-zinc-300"
                   )}
                 >
                   {m.replace('short', 'Break').replace('work', 'Focus')}
@@ -165,110 +175,131 @@ export default function TimeManagementPage() {
               ))}
             </div>
 
-            <div className="text-7xl font-black mb-8 font-mono tracking-tighter text-zinc-100">
+            <div className="text-[84px] font-black mb-12 font-mono tracking-tighter text-zinc-100 leading-none">
               {formatTime(timeLeft)}
             </div>
 
-            <div className="flex justify-center gap-4">
+            <div className="flex justify-center gap-6">
               <button
                 onClick={() => setIsActive(!isActive)}
                 className={cn(
-                  "w-16 h-16 rounded-full flex items-center justify-center transition-all shadow-xl",
+                  "w-20 h-20 rounded-[32px] flex items-center justify-center transition-all shadow-2xl",
                   isActive 
-                    ? "bg-zinc-800 text-zinc-100 hover:bg-zinc-700" 
-                    : "bg-accent-blue text-white hover:scale-105 shadow-accent-blue/20"
+                    ? "bg-white/[0.03] text-zinc-100 hover:bg-white/[0.05]" 
+                    : "bg-brand-primary text-white hover:scale-105 shadow-brand-primary/30"
                 )}
               >
-                {isActive ? <Pause className="fill-current" /> : <Play className="fill-current ml-1" />}
+                {isActive ? <Pause className="fill-current w-6 h-6" /> : <Play className="fill-current ml-1 w-6 h-6" />}
               </button>
               <button
                 onClick={resetTimer}
-                className="w-16 h-16 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-zinc-100 transition-all"
+                className="w-20 h-20 rounded-[32px] bg-white/[0.02] border border-white/[0.05] flex items-center justify-center text-zinc-600 hover:text-zinc-100 transition-all hover:bg-white/[0.05]"
               >
-                <RotateCcw />
+                <RotateCcw className="w-6 h-6" />
               </button>
             </div>
           </div>
           
-          {/* Animated Background Pulse when active */}
+          {/* Animated Background Pulse */}
           {isActive && (
             <motion.div 
               initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1.5, opacity: 0.05 }}
-              transition={{ repeat: Infinity, duration: 2 }}
-              className="absolute inset-0 bg-accent-blue rounded-full m-auto w-64 h-64 -z-0"
+              animate={{ scale: 2, opacity: 0.05 }}
+              transition={{ repeat: Infinity, duration: 3 }}
+              className="absolute inset-0 bg-brand-primary rounded-full m-auto w-64 h-64 -z-0 blur-[60px]"
             />
           )}
-        </div>
+        </motion.div>
+        
+        <motion.div
+           initial={{ opacity: 0, y: 10 }}
+           animate={{ opacity: 1, y: 0 }}
+           transition={{ delay: 0.4 }}
+           className="p-8 glass-card rounded-[32px] border-brand-primary/10 bg-brand-primary/[0.02]"
+        >
+           <h4 className="text-[9px] font-black uppercase tracking-[0.3em] text-brand-primary mb-4 flex items-center gap-2">
+             <Sparkles className="w-3 h-3" />
+             Efficiency Yield
+           </h4>
+           <p className="text-xs text-zinc-500 leading-relaxed font-medium">
+             Complete a focus cycle to generate <span className="text-zinc-200">150 XP</span> and execute a <span className="text-zinc-200">Deep Work Strike</span> (50 DMG) on active threats.
+           </p>
+        </motion.div>
       </div>
 
       {/* Daily Schedule / Tasks Section */}
-      <div className="lg:col-span-2 space-y-6">
-        <div className="glass-card p-8 rounded-3xl border-zinc-800 min-h-[500px]">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-bold flex items-center gap-3">
-              <CalendarIcon className="text-accent-blue" />
-              Focus Sessions
+      <div className="lg:col-span-2 space-y-8">
+        <div className="glass-card p-12 rounded-[48px] border-white/[0.05] min-h-[600px] flex flex-col">
+          <div className="flex items-center justify-between mb-12">
+            <h2 className="text-3xl font-black flex items-center gap-4 tracking-tighter">
+              <CalendarIcon className="text-brand-primary w-8 h-8" />
+              FOCUS_SEQUENCES
             </h2>
-            <div className="text-sm text-zinc-500 font-medium">Today's Schedule</div>
+            <div className="text-[10px] font-black text-zinc-500 uppercase tracking-widest bg-white/[0.03] px-4 py-2 rounded-xl border border-white/[0.05]">Active Protocol</div>
           </div>
 
-          <div className="flex gap-2 mb-6">
+          <div className="flex gap-4 mb-10">
             <input 
               type="text" 
               value={newTask}
               onChange={(e) => setNewTask(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && addTask()}
-              placeholder="What are we focusing on? (+10 XP)"
-              className="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 focus:outline-none focus:border-accent-blue transition-all"
+              placeholder="What is our next focus sector?"
+              className="flex-1 bg-white/[0.02] border border-white/[0.05] rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-all text-zinc-100 font-bold tracking-tight"
             />
             <button 
               onClick={addTask}
-              className="bg-accent-blue p-3 rounded-xl hover:bg-accent-blue/90 transition-all shadow-lg shadow-accent-blue/20"
+              className="bg-brand-primary p-4 rounded-2xl hover:bg-brand-primary/90 transition-all shadow-lg shadow-brand-primary/20 hover:scale-105 active:scale-95"
             >
-              <Plus className="text-white" />
+              <Plus className="text-white w-6 h-6" />
             </button>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-4 flex-1">
             {loading ? (
-              <div className="flex justify-center py-20">
-                <Loader2 className="w-8 h-8 animate-spin text-accent-blue" />
+              <div className="flex flex-col items-center justify-center py-20 gap-4">
+                <Loader2 className="w-10 h-10 animate-spin text-brand-primary" />
+                <p className="text-[9px] font-bold uppercase tracking-widest text-zinc-600">Syncing task threads...</p>
               </div>
             ) : (
-              <AnimatePresence>
-                {tasks.map((task) => (
+              <AnimatePresence mode="popLayout">
+                {tasks.map((task, i) => (
                   <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ delay: i * 0.05 }}
                     key={task.id}
                     className={cn(
-                      "flex items-center gap-4 p-4 rounded-2xl border transition-all group",
+                      "flex items-center gap-5 p-6 rounded-[24px] border transition-all group",
                       task.completed 
-                        ? "bg-accent-blue/10 border-accent-blue/30 text-zinc-500" 
-                        : "bg-zinc-900/50 border-zinc-800 hover:border-zinc-700"
+                        ? "bg-white/[0.01] border-white/[0.02] text-zinc-600" 
+                        : "bg-white/[0.02] border-white/[0.05] hover:border-brand-primary/30 hover:bg-white/[0.04]"
                     )}
                   >
                     <div 
                       onClick={() => toggleTask(task)}
-                      className="flex items-center gap-4 flex-1 cursor-pointer"
+                      className="flex items-center gap-5 flex-1 cursor-pointer"
                     >
                       {task.completed ? (
-                        <CheckCircle2 className="text-accent-blue w-6 h-6" />
+                        <div className="w-7 h-7 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                          <CheckCircle2 className="text-emerald-500 w-4 h-4" />
+                        </div>
                       ) : (
-                        <div className="w-6 h-6 rounded-full border-2 border-zinc-700 group-hover:border-accent-blue transition-colors" />
+                        <div className="w-7 h-7 rounded-xl border-2 border-zinc-800 group-hover:border-brand-primary/50 transition-all bg-zinc-950" />
                       )}
-                      <span className={cn("font-medium", task.completed && "line-through")}>
+                      <span className={cn("text-lg font-bold tracking-tight", task.completed && "line-through opacity-40 font-medium")}>
                         {task.text}
                       </span>
                     </div>
                     
-                    <div className="flex items-center gap-3">
-                      {task.completed && <span className="text-xs font-bold text-accent-blue">+20 XP</span>}
+                    <div className="flex items-center gap-6">
+                      {task.completed && (
+                        <span className="text-[9px] font-black text-emerald-500/50 uppercase tracking-widest">+20 XP Earned</span>
+                      )}
                       <button 
                         onClick={() => deleteTask(task.id)}
-                        className="p-2 rounded-lg hover:bg-red-500/10 text-zinc-600 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100"
+                        className="p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.05] text-zinc-700 hover:text-rose-500 hover:bg-rose-500/10 transition-all opacity-0 group-hover:opacity-100"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -279,14 +310,14 @@ export default function TimeManagementPage() {
             )}
 
             {!loading && tasks.length === 0 && (
-              <div className="text-center py-20 text-zinc-600">
-                <p>No focus sessions planned yet.</p>
-                <p className="text-sm italic">"The secret of getting ahead is getting started."</p>
+              <div className="text-center py-32 opacity-30 flex flex-col items-center gap-6">
+                <CalendarIcon className="w-16 h-16" />
+                <p className="font-bold uppercase tracking-[0.3em] text-[10px]">Trajectory protocols empty</p>
               </div>
             )}
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
